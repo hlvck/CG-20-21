@@ -10,8 +10,7 @@
 
 float alpha = 0, beta = M_PI/4;
 float dist = 10;
-
-char** att = parseXml("../demo/scene.xml");
+Model** models = parseXml("../demo/scene.xml");
 
 void changeSize(int w, int h) {
 
@@ -53,101 +52,11 @@ void renderScene(void) {
 		      0.0,0.0,0.0,
 			  0.0f,1.0f,0.0f);
 
-// put the geometric transformations here
+    // put the geometric transformations here
 
 
-// put drawing instructions here
-    /*float radius = 1.2;
-    float height = 3;
-    int slices = 10;
-    glBegin(GL_TRIANGLES);
-
-    float red=1;
-    for(int i = 0; i < slices; i++)
-    {
-        double alpha = (i*2*M_PI)/slices;
-        double secalpha = ((i+1)*2*M_PI)/slices;
-        glColor3f(0,i*red/slices,i*red/slices);
-        glVertex3f(radius*sin(alpha),0,radius*cos(alpha));
-        glVertex3f(radius*sin(secalpha),0,radius*cos(secalpha));
-        glVertex3f(radius*sin(alpha),height,radius*cos(alpha));
-
-        glVertex3f(radius*sin(alpha),height,radius*cos(alpha));
-        glVertex3f(radius*sin(secalpha),0,radius*cos(secalpha));
-        glVertex3f(radius*sin(secalpha),height,radius*cos(secalpha));
-
-        glVertex3f(radius*sin(alpha),0,radius*cos(alpha)); //bot
-        glVertex3f(0,0,0);
-        glVertex3f(radius*sin(secalpha),0,radius*cos(secalpha));
-
-        glVertex3f(radius*sin(alpha),height,radius*cos(alpha)); //top
-        glVertex3f(radius*sin(secalpha),height,radius*cos(secalpha));
-        glVertex3f(0,height,0);
-    }
-    glEnd();
-*/
-    glBegin(GL_TRIANGLES);
-    double xlen = 4;
-    double ylen = 3;
-    double zlen = 2;
-    int divisions = 10;
-    for(int i = 0; i<divisions; i++)
-    {
-        for(int j = 0; j < divisions; j++)
-        {
-            double x1 = (j*xlen)/divisions;
-            double x2 = ((j+1)*xlen)/divisions;
-            double y1 = (i*ylen)/divisions;
-            double y2 = ((i+1)*ylen)/divisions;
-            double z1 = (j*zlen)/divisions;
-            double z2 = ((j+1)*zlen)/divisions;
-            double x1tb = (i*xlen)/divisions;
-            double x2tb = ((i+1)*xlen)/divisions;
-
-            glVertex3f(x1, y1, zlen);           //faces by x, z
-            glVertex3f(x2, y1, zlen);
-            glVertex3f(x1, y2, zlen);
-            glVertex3f(x1, y2, zlen);
-            glVertex3f(x2, y1, zlen);
-            glVertex3f(x2, y2, zlen);
-
-            glVertex3f(x1, y1, 0);           //faces by x, 0
-            glVertex3f(x1, y2, 0);
-            glVertex3f(x2, y2, 0);
-            glVertex3f(x2, y2, 0);
-            glVertex3f(x2, y1, 0);
-            glVertex3f(x1, y1, 0);
-
-            glVertex3f(0, y1, z1);           //faces by z, 0
-            glVertex3f(0, y1, z2);
-            glVertex3f(0, y2, z1);
-            glVertex3f(0, y2, z1);
-            glVertex3f(0, y1, z2);
-            glVertex3f(0, y2, z2);
-
-            glVertex3f(xlen, y1, z1);           //faces by z, x
-            glVertex3f(xlen, y2, z1);
-            glVertex3f(xlen, y2, z2);
-            glVertex3f(xlen, y2, z2);
-            glVertex3f(xlen, y1, z2);
-            glVertex3f(xlen, y1, z1);
-
-            glVertex3f(x1tb, ylen, z1);           // top
-            glVertex3f(x1tb, ylen, z2);
-            glVertex3f(x2tb, ylen, z2);
-            glVertex3f(x2tb, ylen, z2);
-            glVertex3f(x2tb, ylen, z1);
-            glVertex3f(x1tb, ylen, z1);
-
-            glVertex3f(x1tb, 0, z1);           // bot
-            glVertex3f(x2tb, 0, z1);
-            glVertex3f(x1tb, 0, z2);
-            glVertex3f(x1tb, 0, z2);
-            glVertex3f(x2tb, 0, z1);
-            glVertex3f(x2tb, 0, z2);
-        }
-    }
-    glEnd();
+    // put drawing instructions here
+    drawModels(models);
 
 	// End of frame
 	glutSwapBuffers();

@@ -1,7 +1,6 @@
 #define USE_MATH_DEFINES
 
 #include <cmath>
-#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <fstream>
@@ -25,7 +24,7 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
 {
     std::ofstream file;
     file.open(filename);
-    file << 36*divisions << std::endl;
+    file << 6*6*(divisions*divisions) << std::endl;
     for(int i = 0; i<divisions; i++) {
         for (int j = 0; j < divisions; j++) {
             double x1 = (j*xlen)/divisions;
@@ -93,7 +92,7 @@ void sphere (double radius, int slices, int stacks, char* filename)
         for(int j = 0; j < stacks; j++)
         {
             double a1 = (i*2*M_PI)/slices;
-            double a2 = ((i+2)*2*M_PI)/slices;
+            double a2 = ((i+1)*2*M_PI)/slices;
             double b1 = (M_PI/2)-(j*M_PI/stacks);
             double b2 = (M_PI/2)-((j+1)*M_PI/stacks);
             double y1 = radius*sin(b1);
@@ -122,26 +121,65 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
 {
     std::ofstream file;
     file.open(filename);
-    file << 6*slices*stacks
+    file << 6*slices*stacks + 3*slices << std::endl;
+
+    for(int i = 0; i < stacks; i++)
+    {
+        double r1 = radius - ((i*radius)/stacks);
+        double r2 = radius - (((i+1)*radius)/stacks);
+        double y1 = (i*height)/stacks;
+        double y2 = ((i+1)*height)/stacks;
+
+        for(int j = 0; j < slices; j++)
+        {
+            double a1 = (j*2*M_PI)/slices;
+            double a2 = ((j+1)*2*M_PI)/slices;
+            double x1 = r1*sin(a1);
+            double x2 = r1*sin(a2);
+            double x3 = r2*sin(a1);
+            double x4 = r2*sin(a2);
+            double z1 = r1*cos(a1);
+            double z2 = r1*cos(a2);
+            double z3 = r2*cos(a1);
+            double z4 = r2*cos(a2);
+
+            file << x1 << "," << y1 << "," << z1 << std::endl;
+            file << x2 << "," << y1 << "," << z2 << std::endl;
+            file << x3 << "," << y2 << "," << z3 << std::endl;
+            file << x2 << "," << y1 << "," << z2 << std::endl;
+            file << x4 << "," << y2 << "," << z4 << std::endl;
+            file << x3 << "," << y2 << "," << z3 << std::endl;
+
+            if(i==0)
+            {
+                file << x1 << "," << y1 << "," << z1 << std::endl;
+                file << "0.0" << "," << y1 << "," << "0.0" << std::endl;
+                file << x2 << "," << y1 << "," << z2 << std::endl;
+            }
+        }
+    }
 }
 
 int main(int argc, char** argv)
 {
-    if (argc == 4 && strcmp(argv[1], "plane"))
+    if (argc == 4 && !strcmp(argv[1], "plane"))
     {
         plane(atof(argv[2]), argv[3]);
     }
-    else if(argc == 7 && strcmp(argv[1], "box"))
+    else if(argc == 7 && !strcmp(argv[1], "box"))
     {
         box(atof(argv[2]), atof(argv[3]), atof(argv[4]), atoi(argv[5]), argv[6]);
     }
-    else if(argc == 6 && strcmp(argv[1], "sphere"))
+    else if(argc == 6 && !strcmp(argv[1], "sphere"))
     {
         sphere(atof(argv[2]), atoi(argv[3]), atoi(argv[4]), argv[5]);
     }
-    else if(argc == 7 && strcmp(argv[1], "cone"))
+    else if(argc == 7 && !strcmp(argv[1], "cone"))
     {
         cone(atof(argv[2]), atof(argv[3]), atoi(argv[4]), atoi(argv[5]), argv[6]);
     }
-
+    else
+    {
+        printf("Incorrect formatting. Usage: ./generator <primitive type> <parameters> <file name>\n");
+    }
 }

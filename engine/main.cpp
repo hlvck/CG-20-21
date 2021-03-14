@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include "model.h"
+#include "extra.h"
 #include "tinyxml/tinyxml.h"
 
 float alpha = 0, beta = M_PI/4;
@@ -38,15 +39,17 @@ void changeSize(int w, int h) {
 }
 
 
+
 void renderScene(void) {
 
     float posZ = dist * cos(beta) * cos(alpha);
     float posX = dist * cos(beta) * sin(alpha);
     float posY = dist * sin(beta);
+
 	// clear buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// set the camera
+    // set the camera
 	glLoadIdentity();
 	gluLookAt(posX,posY,posZ,
 		      0.0,0.0,0.0,
@@ -56,6 +59,7 @@ void renderScene(void) {
 
 
     // put drawing instructions here
+    drawAxis();
     drawModels(models);
 
 	// End of frame
@@ -93,6 +97,9 @@ void keyboard(unsigned char key, int x, int y)
         case 's':
             dist += 0.16;
             break;
+        case 'l':
+            axisToggle();
+            break;
         case '1':
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
@@ -100,8 +107,6 @@ void keyboard(unsigned char key, int x, int y)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
     }
-    if(key == 'w' && dist >= 0.16) dist -= 0.16;
-    if(key == 's') dist += 0.16;
 
     glutPostRedisplay();
 }
@@ -115,7 +120,7 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
-	glutCreateWindow("CG@DI-UM");
+	glutCreateWindow("Practical Assignment");
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);

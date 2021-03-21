@@ -4,17 +4,42 @@
 #endif //ASSESSMENT_MODEL_H
 #include "tinyxml/tinyxml.h"
 #include <GL/glut.h>
+#include <cstdio>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
-struct Point {
-    float x, y, z;
+enum TRANSF_TYPE{
+    translate,
+    rotate,
+    scale
+};
+
+struct Transform {
+    TRANSF_TYPE type;
+    float angle, x, y, z;
 };
 
 struct Model {
-    int numPoints;
-    Point* vertices;
+    std::vector<float> vertices;
+
+    Model(std::vector<float> points)
+    {
+        vertices = points;
+    }
+
 };
 
-Model** parseXml(char*);
-Model** loadModels(char**, int);
-Point* addPoint(Point*, float, float, float);
+struct ModelGroup {
+    std::vector<Transform> transforms;
+    std::vector<Model> models;
+    std::vector<ModelGroup>* children;
+};
+
+std::vector<ModelGroup>* parseXml(char*);
+ModelGroup* parseGroups(TiXmlNode*);
+Model* loadModel(std::string);
+//Model** loadModels(char**, int);
 void drawModels(Model**);

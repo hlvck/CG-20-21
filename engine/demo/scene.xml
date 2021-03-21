@@ -1,4 +1,21 @@
 <scene>
-	<model file="../demo/cone.3d" />
+	<group>
+		<translate X=3 />
+		<models>
+			<model file="../demo/plane.3d" />
+		</models>
+		<group>
+			<translate Y=5 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+	</group>
+	<group>
+		<rotate angle=90 axisZ=1 />
+		<models>
+			<model file="../demo/cone.3d" />
+		</models>
+	</group>
 </scene>
 

@@ -1,80 +1,102 @@
 #include "model.h"
-#include <fstream>
-#define MAX_MODELS 64
 
-int num_models = 0;
 
-Model** parseXml(char* filename)
+std::vector<ModelGroup>* parseXml(char* filename)
 {
     TiXmlDocument doc(filename);
     bool success = doc.LoadFile(filename);
-    char* modelnames[MAX_MODELS];
-    int i = 0;
-
     if(!success)
     {
         printf("Error loading XML file. %s", doc.ErrorDesc());
         getchar();
         exit(1);
     }
-    TiXmlElement* model = doc.FirstChildElement("scene")->FirstChildElement("model");
-    while(model)
+    TiXmlNode* node = doc.FirstChildElement("scene")->FirstChild();
+    auto modelGroup = new std::vector<ModelGroup>;
+    do {
+        modelGroup->emplace_back(*parseGroups(node->FirstChild()));
+    } while((node = node->NextSibling()));
+    return modelGroup;
+}
+
+ModelGroup* parseGroups(TiXmlNode* node)
+{
+    auto current = new ModelGroup;
+    if(!node) return nullptr;
+
+    do {
+        if ((!strcmp(node->Value(), "translate")) || (!strcmp(node->Value(), "rotate")) || (!strcmp(node->Value(), "scale")))
+        {
+            TiXmlAttribute *atrib = node->ToElement()->FirstAttribute();
+            auto *transform = new Transform;
+            if (!strcmp(node->Value(), "translate")) transform->type = translate;
+            else if (!strcmp(node->Value(), "rotate")) transform->type = rotate;
+            else transform->type = scale;
+            transform->x = 0;
+            transform->y = 0;
+            transform->z = 0;
+            transform->angle = 0;
+            do {
+                float val;
+                if (!strcmp(atrib->Name(), "X") || !strcmp(atrib->Name(), "axisX")) transform->x = atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "Y") || !strcmp(atrib->Name(), "axisY")) transform->y = atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "Z") || !strcmp(atrib->Name(), "axisZ")) transform->z = atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "angle")) transform->angle = atrib->DoubleValue();
+            } while((atrib = atrib->Next()));
+            current->transforms.emplace_back(*transform);
+        }
+
+        if(!strcmp(node->Value(), "models"))
+        {
+            std::vector<std::string> filenames;
+            TiXmlElement* elem = node->FirstChildElement("model");
+            do {
+                filenames.emplace_back(elem->Attribute("file"));
+            } while((elem = elem->NextSiblingElement()));
+
+            for(auto file : filenames)
+            {
+                Model* model = loadModel(file);
+                if(model) current->models.emplace_back(*model);
+            }
+
+            //todo: child groups
+        }
+    } while((node = node->NextSibling()));
+    return current;
+}
+
+Model* loadModel (std::string filename)
+{
+    std::ifstream file(filename);
+    std::string line;
+    std::vector<float> vertices;
+    if(!file.is_open())
     {
-        modelnames[i] = strdup(model->Attribute("file"));
-        printf("Model name: %s\n", modelnames[i]);
-        i++;
-        model = model->NextSiblingElement();
+        std::cout << "Error opening file: " << filename << std::endl;
+        return nullptr;
     }
-    Model** models = loadModels(modelnames, i);
-    num_models = i;
-    return models;
-}
 
-Model** loadModels (char** modelnames, int nummodels)
-{
-    Model** models = (Model**)malloc(sizeof(Model*)*nummodels);
-    std::ifstream modelfile;
-    for(int i = 0; i < nummodels; i++){
-        modelfile.open(modelnames[i]);
-        std::string line;
-        if(!modelfile.is_open())
-        {
-            printf("Error opening file: %s.\n", modelnames[i]);
-            continue;
+    std::stringstream ss;
+    getline(file, line);
+
+    while(getline(file, line))
+    {
+        ss.clear();
+        ss.str(line);
+        while(ss.good()){
+            std::string substr;
+            getline(ss, substr, ',');
+            vertices.emplace_back(stof(substr));
         }
-        getline(modelfile, line);
-        models[i] = (Model*)malloc(sizeof(Model));
-        models[i]->numPoints = atoi(line.c_str());
-        models[i]->vertices = (Point*)malloc(sizeof(Point)*models[i]->numPoints);
-        int j = 0;
-        float x,y,z;
-        while(getline(modelfile, line))
-        {
-            x = stof(line.substr(0, line.find(',')), NULL);
-            line.erase(0, line.find(",")+1);
-            y = stof(line.substr(0, line.find(',')), NULL);
-            line.erase(0, line.find(",")+1);
-            z = stof(line.substr(0, line.find(',')), NULL);
-            line.erase(0, line.find(",")+1);
-            addPoint(&models[i]->vertices[j], x, y, z);
-            j++;
-        }
-        modelfile.close();
     }
-    return models;
-}
 
-Point* addPoint(Point* p, float x, float y, float z)
-{
-    p->x = x;
-    p->y = y;
-    p->z = z;
-    return p;
+   return new Model(vertices);
 }
 
 void drawModels(Model** models)
 {
-    int i = 0;
+    /*int i = 0;
     while(i < num_models)
     {
         glBegin(GL_TRIANGLES);
@@ -86,5 +108,5 @@ void drawModels(Model** models)
         }
         glEnd();
         i++;
-    }
+    }*/
 }

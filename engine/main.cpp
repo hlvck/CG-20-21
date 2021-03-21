@@ -11,7 +11,7 @@
 
 float alpha = 0, beta = M_PI/4;
 float dist = 10;
-Model** models = parseXml("../demo/scene.xml");
+std::vector<ModelGroup>* models = parseXml("../demo/scene.xml");
 
 void changeSize(int w, int h) {
 
@@ -60,7 +60,7 @@ void renderScene(void) {
 
     // put drawing instructions here
     drawAxis();
-    drawModels(models);
+    //drawModels(models);
 
 	// End of frame
 	glutSwapBuffers();
@@ -121,6 +121,7 @@ int main(int argc, char **argv) {
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
 	glutCreateWindow("Practical Assignment");
+	std::cout << models->size() << std::endl;
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);

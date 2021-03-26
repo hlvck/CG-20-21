@@ -60,7 +60,7 @@ void renderScene(void) {
 
     // put drawing instructions here
     drawAxis();
-    //drawModels(models);
+    drawModels(models);
 
 	// End of frame
 	glutSwapBuffers();

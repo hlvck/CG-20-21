@@ -31,17 +31,17 @@ ModelGroup* parseGroups(TiXmlNode* node)
             auto *transform = new Transform;
             if (!strcmp(node->Value(), "translate")) transform->type = translate;
             else if (!strcmp(node->Value(), "rotate")) transform->type = rotate;
-            else transform->type = scale;
+            else if (!strcmp(node->Value(), "scale")) transform->type = scale;
             transform->x = 0;
             transform->y = 0;
             transform->z = 0;
             transform->angle = 0;
             do {
                 float val;
-                if (!strcmp(atrib->Name(), "X") || !strcmp(atrib->Name(), "axisX")) transform->x = atrib->DoubleValue();
-                if (!strcmp(atrib->Name(), "Y") || !strcmp(atrib->Name(), "axisY")) transform->y = atrib->DoubleValue();
-                if (!strcmp(atrib->Name(), "Z") || !strcmp(atrib->Name(), "axisZ")) transform->z = atrib->DoubleValue();
-                if (!strcmp(atrib->Name(), "angle")) transform->angle = atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "X") || !strcmp(atrib->Name(), "axisX")) transform->x = (float)atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "Y") || !strcmp(atrib->Name(), "axisY")) transform->y = (float)atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "Z") || !strcmp(atrib->Name(), "axisZ")) transform->z = (float)atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "angle")) transform->angle = (float)atrib->DoubleValue();
             } while((atrib = atrib->Next()));
             current->transforms.emplace_back(*transform);
         }
@@ -59,8 +59,14 @@ ModelGroup* parseGroups(TiXmlNode* node)
                 Model* model = loadModel(file);
                 if(model) current->models.emplace_back(*model);
             }
+        }
 
-            //todo: child groups
+        if(!strcmp(node->Value(), "group"))
+        {
+            //auto child = new ModelGroup;
+            auto child = parseGroups(node->FirstChild());
+            if(!current->children) current->children = new std::vector<ModelGroup>;
+            current->children->emplace_back(*child);
         }
     } while((node = node->NextSibling()));
     return current;
@@ -90,23 +96,39 @@ Model* loadModel (std::string filename)
             vertices.emplace_back(stof(substr));
         }
     }
-
    return new Model(vertices);
 }
 
-void drawModels(Model** models)
+void drawModels(std::vector<ModelGroup>* modelgroups)
 {
-    /*int i = 0;
-    while(i < num_models)
+    for (auto group : *modelgroups)
     {
-        glBegin(GL_TRIANGLES);
-        for(int j = 0; j < models[i]->numPoints; j+=3)
+        glPushMatrix();
+        for(auto transform : group.transforms)
         {
-            glVertex3f(models[i]->vertices[j].x, models[i]->vertices[j].y, models[i]->vertices[j].z);
-            glVertex3f(models[i]->vertices[j+1].x, models[i]->vertices[j+1].y, models[i]->vertices[j+1].z);
-            glVertex3f(models[i]->vertices[j+2].x, models[i]->vertices[j+2].y, models[i]->vertices[j+2].z);
+            switch (transform.type)
+            {
+                case translate:
+                    glTranslatef(transform.x, transform.y, transform.z);
+                    break;
+                case rotate:
+                    glRotatef(transform.angle, transform.x, transform.y, transform.z);
+                    break;
+                case scale:
+                    glScalef(transform.x, transform.y, transform.z);
+                    break;
+            }
         }
-        glEnd();
-        i++;
-    }*/
+        for (auto model : group.models)
+        {
+            glBegin(GL_TRIANGLES);
+            for(int i = 0; i < model.vertices.size(); i+=3)
+            {
+                glVertex3f(model.vertices[i], model.vertices[i+1], model.vertices[i+2]);
+            }
+            glEnd();
+        }
+        if(group.children) (drawModels(group.children));
+        glPopMatrix();
+    }
 }

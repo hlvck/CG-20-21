@@ -7,8 +7,21 @@
 		<group>
 			<translate Y=5 />
 			<models>
-				<model file="../demo/sphere.3d" />
+				<model file="../demo/cone.3d" />
 			</models>
+			<group>
+				<translate X=3 />
+				<rotate angle=-90 axisZ=1 />
+				<models>
+					<model file="../demo/cone.3d" />
+				</models>
+				<group>
+					<translate X=10 />
+					<models>
+						<model file="../demo/sphere.3d" />
+					</models>
+				</group>
+			</group>
 		</group>
 	</group>
 	<group>

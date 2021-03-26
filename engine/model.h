@@ -42,4 +42,4 @@ std::vector<ModelGroup>* parseXml(char*);
 ModelGroup* parseGroups(TiXmlNode*);
 Model* loadModel(std::string);
 //Model** loadModels(char**, int);
-void drawModels(Model**);
+void drawModels(std::vector<ModelGroup>*);

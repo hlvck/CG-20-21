@@ -21,9 +21,8 @@ std::vector<ModelGroup>* parseXml(char* filename)
 
 ModelGroup* parseGroups(TiXmlNode* node)
 {
-    auto current = new ModelGroup;
     if(!node) return nullptr;
-    current->children = nullptr;
+    auto current = new ModelGroup;
 
     do {
         if ((!strcmp(node->Value(), "translate")) || (!strcmp(node->Value(), "rotate")) || (!strcmp(node->Value(), "scale")))
@@ -33,16 +32,11 @@ ModelGroup* parseGroups(TiXmlNode* node)
             if (!strcmp(node->Value(), "translate")) transform->type = translate;
             else if (!strcmp(node->Value(), "rotate")) transform->type = rotate;
             else if (!strcmp(node->Value(), "scale")) transform->type = scale;
-            if(transform->type != scale) {
-                transform->x = 0;
-                transform->y = 0;
-                transform->z = 0;
-            } else {
+            if(transform->type == scale) {
                 transform->x = 1;
                 transform->y = 1;
                 transform->z = 1;
             }
-            transform->angle = 0;
             do {
                 float val;
                 if (!strcmp(atrib->Name(), "X") || !strcmp(atrib->Name(), "axisX")) transform->x = (float)atrib->DoubleValue();
@@ -63,14 +57,13 @@ ModelGroup* parseGroups(TiXmlNode* node)
 
             for(auto file : filenames)
             {
-                Model* model = loadModel(file);
+                Model* model = loadModel(&file);
                 if(model) current->models.emplace_back(*model);
             }
         }
 
         if(!strcmp(node->Value(), "group"))
         {
-            //auto child = new ModelGroup;
             auto child = parseGroups(node->FirstChild());
             if(!current->children) current->children = new std::vector<ModelGroup>;
             current->children->emplace_back(*child);
@@ -79,14 +72,14 @@ ModelGroup* parseGroups(TiXmlNode* node)
     return current;
 }
 
-Model* loadModel (std::string filename)
+Model* loadModel (std::string* filename)
 {
-    std::ifstream file(filename);
+    std::ifstream file(*filename);
     std::string line;
     std::vector<float> vertices;
     if(!file.is_open())
     {
-        std::cout << "Error opening file: " << filename << ". Specify the path as second argument." << std::endl;
+        std::cout << "Error opening file: " << *filename << ". Specify the path as second argument." << std::endl;
         return nullptr;
     }
 

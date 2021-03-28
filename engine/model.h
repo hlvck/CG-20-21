@@ -20,14 +20,23 @@ enum TRANSF_TYPE{
 struct Transform {
     TRANSF_TYPE type;
     float angle, x, y, z;
+
+    Transform()
+    {
+        this->type = translate;
+        this->angle = 0;
+        this->x = 0;
+        this->y = 0;
+        this->z = 0;
+    }
 };
 
 struct Model {
     std::vector<float> vertices;
 
-    Model(std::vector<float> points)
+    explicit Model(std::vector<float> points)
     {
-        vertices = points;
+        vertices = std::move(points);
     }
 
 };
@@ -36,10 +45,14 @@ struct ModelGroup {
     std::vector<Transform> transforms;
     std::vector<Model> models;
     std::vector<ModelGroup>* children;
+
+    ModelGroup()
+    {
+        this->children = nullptr;
+    }
 };
 
 std::vector<ModelGroup>* parseXml(char*);
 ModelGroup* parseGroups(TiXmlNode*);
-Model* loadModel(std::string);
-//Model** loadModels(char**, int);
+Model* loadModel(std::string*);
 void drawModels(std::vector<ModelGroup>*);

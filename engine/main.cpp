@@ -11,7 +11,7 @@
 
 float alpha = 0, beta = M_PI/4;
 float dist = 10;
-std::vector<ModelGroup>* models = parseXml("../demo/scene.xml");
+std::vector<ModelGroup>* models; //= parseXml("../demo/scene.xml");
 
 void changeSize(int w, int h) {
 
@@ -121,7 +121,11 @@ int main(int argc, char **argv) {
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
 	glutCreateWindow("Practical Assignment");
-	std::cout << models->size() << std::endl;
+	if(argc >= 2) {
+	    models = parseXml(argv[1]);
+	} else {
+        models = parseXml("../demo/scene.xml");
+    }
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);

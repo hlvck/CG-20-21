@@ -23,6 +23,7 @@ ModelGroup* parseGroups(TiXmlNode* node)
 {
     auto current = new ModelGroup;
     if(!node) return nullptr;
+    current->children = nullptr;
 
     do {
         if ((!strcmp(node->Value(), "translate")) || (!strcmp(node->Value(), "rotate")) || (!strcmp(node->Value(), "scale")))
@@ -32,9 +33,15 @@ ModelGroup* parseGroups(TiXmlNode* node)
             if (!strcmp(node->Value(), "translate")) transform->type = translate;
             else if (!strcmp(node->Value(), "rotate")) transform->type = rotate;
             else if (!strcmp(node->Value(), "scale")) transform->type = scale;
-            transform->x = 0;
-            transform->y = 0;
-            transform->z = 0;
+            if(transform->type != scale) {
+                transform->x = 0;
+                transform->y = 0;
+                transform->z = 0;
+            } else {
+                transform->x = 1;
+                transform->y = 1;
+                transform->z = 1;
+            }
             transform->angle = 0;
             do {
                 float val;
@@ -79,7 +86,7 @@ Model* loadModel (std::string filename)
     std::vector<float> vertices;
     if(!file.is_open())
     {
-        std::cout << "Error opening file: " << filename << std::endl;
+        std::cout << "Error opening file: " << filename << ". Specify the path as second argument." << std::endl;
         return nullptr;
     }
 
@@ -101,7 +108,7 @@ Model* loadModel (std::string filename)
 
 void drawModels(std::vector<ModelGroup>* modelgroups)
 {
-    for (auto group : *modelgroups)
+    for (auto &group : *modelgroups)
     {
         glPushMatrix();
         for(auto transform : group.transforms)

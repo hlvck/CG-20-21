@@ -12,6 +12,7 @@
 			<group>
 				<translate X=3 />
 				<rotate angle=-90 axisZ=1 />
+				<scale X="0.2" Y="0.2" Z="0.2" />
 				<models>
 					<model file="../demo/cone.3d" />
 				</models>

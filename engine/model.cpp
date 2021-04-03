@@ -7,7 +7,7 @@ std::vector<ModelGroup>* parseXml(char* filename)
     bool success = doc.LoadFile(filename);
     if(!success)
     {
-        printf("Error loading XML file. %s", doc.ErrorDesc());
+        printf("Error loading XML file. %s. Specify the path as second argument.", doc.ErrorDesc());
         getchar();
         exit(1);
     }
@@ -78,7 +78,7 @@ Model* loadModel (std::string* filename)
     std::vector<float> vertices;
     if(!file.is_open())
     {
-        std::cout << "Error opening file: " << *filename << ". Specify the path as second argument." << std::endl;
+        std::cout << "Error opening file: " << *filename << std::endl;
         return nullptr;
     }
 

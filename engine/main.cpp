@@ -10,8 +10,8 @@
 #include "tinyxml/tinyxml.h"
 
 float alpha = 0, beta = M_PI/4;
-float dist = 10;
-std::vector<ModelGroup>* models; //= parseXml("../demo/scene.xml");
+float dist = 20;
+std::vector<ModelGroup>* models;
 
 void changeSize(int w, int h) {
 

@@ -1,35 +1,79 @@
 <scene>
 	<group>
-		<translate X=3 />
+		<translate X=-5 />
 		<models>
-			<model file="../demo/plane.3d" />
+			<model file="../demo/sphere.3d" />
 		</models>
 		<group>
-			<translate Y=5 />
+			<translate X=6 />
+			<scale X=0.05 Y=0.05 Z=0.05 />
 			<models>
-				<model file="../demo/cone.3d" />
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=8 />
+			<scale X=0.1 Y=0.1 Z=0.1 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=10 />
+			<scale X=0.13 Y=0.13 Z=0.13 />
+			<models>
+				<model file="../demo/sphere.3d" />
 			</models>
 			<group>
-				<translate X=3 />
-				<rotate angle=-90 axisZ=1 />
-				<scale X="0.2" Y="0.2" Z="0.2" />
+				<translate Z=7 />
+				<scale X=0.25 Y=0.25 Z=0.25 />
 				<models>
-					<model file="../demo/cone.3d" />
+					<model file="../demo/sphere.3d" />
 				</models>
-				<group>
-					<translate X=10 />
-					<models>
-						<model file="../demo/sphere.3d" />
-					</models>
-				</group>
 			</group>
 		</group>
-	</group>
-	<group>
-		<rotate angle=90 axisZ=1 />
-		<models>
-			<model file="../demo/cone.3d" />
-		</models>
+		<group>
+			<translate X=12 />
+			<scale X=0.07 Y=0.07 Z=0.07 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=15 />
+			<scale X=0.4 Y=0.4 Z=0.4 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=19 />
+			<scale X=0.3 Y=0.3 Z=0.3 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=22 />
+			<scale X=0.25 Y=0.25 Z=0.25 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=25 />
+			<scale X=0.23 Y=0.23 Z=0.23 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
+		<group>
+			<translate X=33 />
+			<scale X=0.01 Y=0.01 Z=0.01 />
+			<models>
+				<model file="../demo/sphere.3d" />
+			</models>
+		</group>
 	</group>
 </scene>
 

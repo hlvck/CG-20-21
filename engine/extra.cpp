@@ -1,11 +1,28 @@
 #include "extra.h"
 
 bool visibleAxis = false;
+double frames = 0, fps = 0;
+int timebase = 0;
 
 void axisToggle()
 {
     visibleAxis = !visibleAxis;
 }
+
+void displayFps(){
+    char title[50];
+
+    frames++;
+    long time = glutGet(GLUT_ELAPSED_TIME);
+    if (time - timebase > 60)
+    {
+        fps = frames*1000/(time-timebase);
+        timebase = time;
+        frames = 0;
+        sprintf(title, "Practical Assignment (%lf FPS)", fps);
+        glutSetWindowTitle(title);
+    }
+};
 
 void drawAxis()
 {

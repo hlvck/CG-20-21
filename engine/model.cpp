@@ -1,5 +1,8 @@
 #include "model.h"
 
+GLuint vertex[128];
+int modelCounter = 0;
+bool enableVBO = true;
 
 std::vector<ModelGroup>* parseXml(char* filename)
 {
@@ -71,6 +74,14 @@ ModelGroup* parseGroups(TiXmlNode* node)
     return current;
 }
 
+void initializeVBO (std::vector<float> vertices, int modelIndex)
+{
+    //initialize, copy to gpu
+    glGenBuffers(1, &vertex[modelIndex]);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+}
+
 Model* loadModel (std::string* filename)
 {
     std::ifstream file(*filename);
@@ -95,7 +106,11 @@ Model* loadModel (std::string* filename)
             vertices.emplace_back(stof(substr));
         }
     }
-   return new Model(vertices);
+
+    initializeVBO(vertices, modelCounter);
+    auto mod = new Model(vertices, modelCounter);
+    modelCounter++;
+    return mod;
 }
 
 void drawModels(std::vector<ModelGroup>* modelgroups)
@@ -120,14 +135,26 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
         }
         for (auto model : group.models)
         {
-            glBegin(GL_TRIANGLES);
-            for(int i = 0; i < model.vertices.size(); i+=3)
+            if(enableVBO)
             {
-                glVertex3f(model.vertices[i], model.vertices[i+1], model.vertices[i+2]);
+                glBindBuffer(GL_ARRAY_BUFFER, vertex[model.modelIndex]);
+                glVertexPointer(3, GL_FLOAT, 0,0);
+                glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
+            } else {
+                glBegin(GL_TRIANGLES);
+                for(int i = 0; i < model.vertices.size(); i+=3)
+                {
+                    glVertex3f(model.vertices[i], model.vertices[i+1], model.vertices[i+2]);
+                }
+                glEnd();
             }
-            glEnd();
         }
         if(group.children) (drawModels(group.children));
         glPopMatrix();
     }
+}
+
+void VBOToggle()
+{
+    enableVBO = !enableVBO;
 }

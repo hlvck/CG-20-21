@@ -1,10 +1,11 @@
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
+#include <GL/glew.h>
 #include <GL/glut.h>
 #endif
 
-#include <math.h>
+#include <cmath>
 #include "model.h"
 #include "extra.h"
 #include "tinyxml/tinyxml.h"
@@ -62,8 +63,10 @@ void renderScene(void) {
     drawAxis();
     drawModels(models);
 
+    displayFps();
 	// End of frame
 	glutSwapBuffers();
+	glutPostRedisplay();
 }
 
 
@@ -100,6 +103,9 @@ void keyboard(unsigned char key, int x, int y)
         case 'l':
             axisToggle();
             break;
+        case 'v':
+            VBOToggle();
+            break;
         case '1':
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
@@ -121,11 +127,7 @@ int main(int argc, char **argv) {
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(800,800);
 	glutCreateWindow("Practical Assignment");
-	if(argc >= 2) {
-	    models = parseXml(argv[1]);
-	} else {
-        models = parseXml("../demo/scene.xml");
-    }
+
 		
 // Required callback registry 
 	glutDisplayFunc(renderScene);
@@ -136,11 +138,22 @@ int main(int argc, char **argv) {
     glutSpecialFunc(keyboardSpecial);
     glutKeyboardFunc(keyboard);
 
+#ifndef __APPLE__
+    glewInit();
+#endif
 
 //  OpenGL settings
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+//  Load models
+    if(argc >= 2) {
+        models = parseXml(argv[1]);
+    } else {
+        models = parseXml("../demo/scene.xml");
+    }
+
 // enter GLUT's main cycle
 	glutMainLoop();
 	

@@ -3,6 +3,7 @@
 #define ASSESSMENT_MODEL_H
 #endif //ASSESSMENT_MODEL_H
 #include "tinyxml/tinyxml.h"
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <cstdio>
 #include <vector>
@@ -33,10 +34,12 @@ struct Transform {
 
 struct Model {
     std::vector<float> vertices;
+    int modelIndex;
 
-    explicit Model(std::vector<float> points)
+    explicit Model(std::vector<float> points, int index)
     {
-        vertices = std::move(points);
+        this->vertices = std::move(points);
+        this->modelIndex = index;
     }
 
 };
@@ -56,3 +59,4 @@ std::vector<ModelGroup>* parseXml(char*);
 ModelGroup* parseGroups(TiXmlNode*);
 Model* loadModel(std::string*);
 void drawModels(std::vector<ModelGroup>*);
+void VBOToggle();

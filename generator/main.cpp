@@ -4,6 +4,8 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <vector>
 
 void plane(double dlength, char* filename)
 {
@@ -160,6 +162,149 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
     }
 }
 
+void multMatrixVector(float *m, float *v, float *res) {
+
+    for (int j = 0; j < 4; ++j) {
+        res[j] = 0;
+        for (int k = 0; k < 4; ++k) {
+            res[j] += v[k] * m[j * 4 + k];
+        }
+    }
+}
+
+void genPoints(float u, float v, float cpoints[4][4][3], float result[3])
+{
+    float um[4] = {u*u*u, u*u, u, 1};
+    float vm[4] = {v*v*v, v*v, v, 1};
+    float m[4][4] = {	{-1.0f,  3.0f, -3.0f,  1.0f},
+                         { 3.0f, -6.0f,  3.0f, 0.0f},
+                         {-3.0f,  3.0f,  0.0f,  0.0f},
+                         { 1.0f,  0.0f,  0.0f,  0.0f}};
+    float resU[4];
+    multMatrixVector((float*)m, um, resU);
+    float resV[4];
+    multMatrixVector((float*)m, vm, resV);
+    float pnt[4][3] = { {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            for(int k = 0; k < 3; k++)
+            {
+                pnt[i][k] += cpoints[j][i][k] * resU[j];
+            }
+        }
+    }
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            result[j] += pnt[i][j] * resV[i];
+        }
+    }
+
+}
+
+void bezier(int tessellation, char* bezfile, char* outfile) {
+    std::ifstream file(bezfile);
+    std::string line;
+
+    if (!file.is_open()) {
+        printf("Error opening Bezier patches file.\n");
+        return;
+    }
+
+    std::stringstream ss;
+    getline(file, line);
+    int numPatches = stoi(line);
+    auto indices = new int[numPatches][16];
+
+    for(int i = 0; i < numPatches; i++)
+    {
+        int j = 0;
+        getline(file, line);
+        ss.clear();
+        ss.str(line);
+        while(ss.good()) {
+            std::string substr;
+            getline(ss, substr, ',');
+            indices[i][j] = stoi(substr);
+            j++;
+        }
+    }
+
+    getline(file, line);
+    int numPoints = stoi(line);
+    auto controlPoints = new float[numPoints][3];
+
+    for(int i = 0; i < numPoints; i++)
+    {
+        int j = 0;
+        getline(file, line);
+        ss.clear();
+        ss.str(line);
+        while(ss.good()) {
+            std::string substr;
+            getline(ss, substr, ',');
+            controlPoints[i][j] = stof(substr);
+            j++;
+        }
+    }
+
+    auto bezierPoints = new float[numPatches][16][3];
+    for(int i = 0; i < numPatches; i++) {
+        for (int j = 0; j < 16; j++) {
+            for (int k = 0; k < 3; k++)
+            {
+                bezierPoints[i][j][k] = controlPoints[indices[i][j]][k];
+            }
+        }
+    }
+
+    std::ofstream output(outfile);
+    output << (numPatches * tessellation * (tessellation) *6) << std::endl;
+
+    float change = 1.0f/tessellation;
+
+    for(int p = 0; p < numPatches; p++)
+    {
+        float from[4][4][3];
+        for (int z = 0; z < 4; z++) {
+            for (int x = 0; x < 4; x++) {
+                for (int w = 0; w < 3; w++) {
+                    from[z][x][w] = bezierPoints[p][z*4+x][w];
+                }
+            }
+        }
+        for (int j = 0; j < tessellation; j++)
+        {
+            float u = j*change;
+            float u2 = (j+1)*change;
+
+            for(int k = 0; k < tessellation; k++)
+            {
+                float v = k*change;
+                float v2 = (k+1)*change;
+
+                float p1[3] = {0,0,0}, p2[3] = {0,0,0}, p3[3] = {0,0,0}, p4[3] = {0,0,0};
+                genPoints(u, v, from, p1);
+                genPoints(u, v2, from, p2);
+                genPoints(u2, v, from, p3);
+                genPoints(u2, v2, from, p4);
+
+                output << p3[0] << "," << p3[1] << "," << p3[2] << std::endl;
+                output << p4[0] << "," << p4[1] << "," << p4[2] << std::endl;
+                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
+                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
+                output << p1[0] << "," << p1[1] << "," << p1[2] << std::endl;
+                output << p3[0] << "," << p3[1] << "," << p3[2] << std::endl;
+
+            }
+        }
+    }
+
+}
+
 int main(int argc, char** argv)
 {
     if (argc == 4 && !strcmp(argv[1], "plane"))
@@ -177,6 +322,10 @@ int main(int argc, char** argv)
     else if(argc == 7 && !strcmp(argv[1], "cone"))
     {
         cone(atof(argv[2]), atof(argv[3]), atoi(argv[4]), atoi(argv[5]), argv[6]);
+    }
+    else if(argc == 5 && !strcmp(argv[1], "bezier"))
+    {
+        bezier(atoi(argv[2]), argv[3], argv[4]);
     }
     else
     {

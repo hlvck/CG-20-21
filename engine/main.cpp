@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
     if(argc >= 2) {
         models = parseXml(argv[1]);
     } else {
-        models = parseXml("../demo/scene.xml");
+        models = parseXml("../demo/scene2.xml");
     }
 
 // enter GLUT's main cycle

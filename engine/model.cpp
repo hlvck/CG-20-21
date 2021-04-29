@@ -45,6 +45,23 @@ ModelGroup* parseGroups(TiXmlNode* node)
                 if (!strcmp(atrib->Name(), "Y") || !strcmp(atrib->Name(), "axisY")) transform->y = (float)atrib->DoubleValue();
                 if (!strcmp(atrib->Name(), "Z") || !strcmp(atrib->Name(), "axisZ")) transform->z = (float)atrib->DoubleValue();
                 if (!strcmp(atrib->Name(), "angle")) transform->angle = (float)atrib->DoubleValue();
+                if (!strcmp(atrib->Name(), "time"))
+                {
+                    transform->time = (float)atrib->DoubleValue();
+                    if (transform->type == translate)
+                    {
+                        TiXmlElement* elem = node->FirstChildElement("point");
+                        do {
+                            TiXmlAttribute* attr = elem->FirstAttribute();
+                            do {
+                                if (!strcmp(attr->Name(), "X")) transform->points.emplace_back((float)attr->DoubleValue());
+                                if (!strcmp(attr->Name(), "Y")) transform->points.emplace_back((float)attr->DoubleValue());
+                                if (!strcmp(attr->Name(), "Z")) transform->points.emplace_back((float)attr->DoubleValue());
+                            } while((attr = attr->Next()));
+                            //transform->points.emplace_back(point);
+                        } while ((elem = elem->NextSiblingElement()));
+                    }
+                }
             } while((atrib = atrib->Next()));
             current->transforms.emplace_back(*transform);
         }
@@ -118,7 +135,7 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
     for (auto &group : *modelgroups)
     {
         glPushMatrix();
-        for(auto transform : group.transforms)
+        for(auto &transform : group.transforms)
         {
             switch (transform.type)
             {
@@ -126,6 +143,13 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
                     glTranslatef(transform.x, transform.y, transform.z);
                     break;
                 case rotate:
+                    if(transform.time > 0)
+                    {
+                        float spf = 0;
+                        if (fps) spf = 1/fps;
+                        float rotv = (spf/transform.time)*360;
+                        transform.angle = (transform.angle + rotv) < 360 ? transform.angle+rotv : 0;
+                    }
                     glRotatef(transform.angle, transform.x, transform.y, transform.z);
                     break;
                 case scale:

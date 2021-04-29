@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "extra.h"
 
 enum TRANSF_TYPE{
     translate,
@@ -20,7 +21,8 @@ enum TRANSF_TYPE{
 
 struct Transform {
     TRANSF_TYPE type;
-    float angle, x, y, z;
+    float angle, x, y, z, time;
+    std::vector<float> points;
 
     Transform()
     {
@@ -29,6 +31,7 @@ struct Transform {
         this->x = 0;
         this->y = 0;
         this->z = 0;
+        this->time = 0;
     }
 };
 

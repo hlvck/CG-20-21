@@ -14,7 +14,7 @@ void displayFps(){
 
     frames++;
     long time = glutGet(GLUT_ELAPSED_TIME);
-    if (time - timebase > 60)
+    if (time - timebase > 1000)
     {
         fps = frames*1000/(time-timebase);
         timebase = time;

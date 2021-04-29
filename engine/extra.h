@@ -5,6 +5,9 @@
 #include <cmath>
 #include <cstdio>
 
+extern double frame, fps;
+extern int timebase;
+
 void axisToggle();
 void drawAxis();
 void displayFps();

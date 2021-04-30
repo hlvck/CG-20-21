@@ -5,7 +5,7 @@ PROJECT(Assessment)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_executable(${PROJECT_NAME} main.cpp model.cpp model.h tinyxml/tinyxml.h tinyxml/tinyxml.cpp tinyxml/tinystr.cpp tinyxml/tinyxmlparser.cpp tinyxml/tinyxmlerror.cpp extra.cpp extra.h)
+add_executable(${PROJECT_NAME} main.cpp model.cpp model.h tinyxml/tinyxml.h tinyxml/tinyxml.cpp tinyxml/tinystr.cpp tinyxml/tinyxmlparser.cpp tinyxml/tinyxmlerror.cpp extra.cpp extra.h catmullrom.h catmullrom.cpp )
 
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIRS})

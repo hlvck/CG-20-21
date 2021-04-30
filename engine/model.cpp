@@ -50,6 +50,7 @@ ModelGroup* parseGroups(TiXmlNode* node)
                     transform->time = (float)atrib->DoubleValue();
                     if (transform->type == translate)
                     {
+                        transform->x = 0; transform->y = 1; transform->z = 0;
                         TiXmlElement* elem = node->FirstChildElement("point");
                         do {
                             TiXmlAttribute* attr = elem->FirstAttribute();
@@ -58,7 +59,6 @@ ModelGroup* parseGroups(TiXmlNode* node)
                                 if (!strcmp(attr->Name(), "Y")) transform->points.emplace_back((float)attr->DoubleValue());
                                 if (!strcmp(attr->Name(), "Z")) transform->points.emplace_back((float)attr->DoubleValue());
                             } while((attr = attr->Next()));
-                            //transform->points.emplace_back(point);
                         } while ((elem = elem->NextSiblingElement()));
                     }
                 }
@@ -140,12 +140,18 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
             switch (transform.type)
             {
                 case translate:
-                    glTranslatef(transform.x, transform.y, transform.z);
+                    if(transform.time > 0 && transform.points.size() > 3){
+                        float prevY[3] = {transform.x, transform.y, transform.z};
+                        transform.gt = catmullRom(transform.gt, transform.time, transform.points.data(), transform.points.size()/3, prevY);
+                        transform.x = prevY[0]; transform.y = prevY[1]; transform.z = prevY[2];
+                    } else {
+                        glTranslatef(transform.x, transform.y, transform.z);
+                    }
                     break;
                 case rotate:
                     if(transform.time > 0)
                     {
-                        float spf = 0;
+                        float spf = 0.0001;
                         if (fps) spf = 1/fps;
                         float rotv = (spf/transform.time)*360;
                         transform.angle = (transform.angle + rotv) < 360 ? transform.angle+rotv : 0;

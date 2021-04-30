@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iostream>
 #include "extra.h"
+#include "catmullrom.h"
 
 enum TRANSF_TYPE{
     translate,
@@ -21,7 +22,7 @@ enum TRANSF_TYPE{
 
 struct Transform {
     TRANSF_TYPE type;
-    float angle, x, y, z, time;
+    float angle, x, y, z, time, gt;
     std::vector<float> points;
 
     Transform()
@@ -32,6 +33,7 @@ struct Transform {
         this->y = 0;
         this->z = 0;
         this->time = 0;
+        this->gt = 0;
     }
 };
 

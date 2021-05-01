@@ -7,3 +7,4 @@
 #include "extra.h"
 
 float catmullRom(float t, float tTotal, float* points, int size, float* prevY);
+void toggleCurve();

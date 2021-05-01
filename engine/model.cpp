@@ -151,7 +151,7 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
                 case rotate:
                     if(transform.time > 0)
                     {
-                        float spf = 0.0001;
+                        float spf = 0;
                         if (fps) spf = 1/fps;
                         float rotv = (spf/transform.time)*360;
                         transform.angle = (transform.angle + rotv) < 360 ? transform.angle+rotv : 0;

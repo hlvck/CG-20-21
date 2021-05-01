@@ -103,6 +103,9 @@ void keyboard(unsigned char key, int x, int y)
         case 'l':
             axisToggle();
             break;
+        case 'k':
+            toggleCurve();
+            break;
         case 'v':
             VBOToggle();
             break;
@@ -151,7 +154,7 @@ int main(int argc, char **argv) {
     if(argc >= 2) {
         models = parseXml(argv[1]);
     } else {
-        models = parseXml("../demo/scene2.xml");
+        models = parseXml("../demo/scene.xml");
     }
 
 // enter GLUT's main cycle

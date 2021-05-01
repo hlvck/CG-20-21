@@ -1,5 +1,7 @@
 #include "catmullrom.h"
 
+bool visibleCurves = true;
+
 void buildRotMatrix(float *x, float *y, float *z, float *m) {
 
     m[0] = x[0]; m[1] = x[1]; m[2] = x[2]; m[3] = 0;
@@ -134,6 +136,10 @@ void renderCatmullRomCurve(float* points, int size) {
     glEnd();
 }
 
+void toggleCurve()
+{
+    visibleCurves = !visibleCurves;
+}
 float catmullRom(float t, float tTotal, float* points, int size, float* prevY)
 {
     float pos[3] = {0};
@@ -141,7 +147,7 @@ float catmullRom(float t, float tTotal, float* points, int size, float* prevY)
     float y[3] = {0};
     float z[3] = {0};
 
-    renderCatmullRomCurve(points, size);
+    if(visibleCurves) renderCatmullRomCurve(points, size);
     getGlobalCatmullRomPoint(t, pos, deriv, points, size);
     glTranslatef(pos[0], pos[1], pos[2]);
 
@@ -156,7 +162,7 @@ float catmullRom(float t, float tTotal, float* points, int size, float* prevY)
     buildRotMatrix(x, y, z, m);
     glMultMatrixf((float*)m);
 
-    float spf = 0.0001;
+    float spf = 0;
     if(fps) spf = 1/fps;
     t = t < 1 ? t+(spf/tTotal) : 0;
     return t;

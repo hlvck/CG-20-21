@@ -39,20 +39,35 @@ struct Transform {
 
 struct Model {
     std::vector<float> vertices;
+    std::vector<float> normals;
     int modelIndex;
+    float ambient[4], specular[4], diffuse[4];
 
-    explicit Model(std::vector<float> points, int index)
+    explicit Model(std::vector<float> points, std::vector<float> npoints, int index)
     {
         this->vertices = std::move(points);
+        this->normals = std::move(npoints);
         this->modelIndex = index;
+        this->ambient[0] = 0.2;
+        this->ambient[1] = 0.2;
+        this->ambient[2] = 0.2;
+        this->ambient[3] = 1.0;
+        this->diffuse[0] = 0.8;
+        this->diffuse[1] = 0.8;
+        this->diffuse[2] = 0.8;
+        this->diffuse[3] = 1.0;
+        this->specular[0] = 0;
+        this->specular[1] = 0;
+        this->specular[2] = 0;
+        this->specular[3] = 1.0;
     }
-
 };
 
 struct ModelGroup {
     std::vector<Transform> transforms;
     std::vector<Model> models;
     std::vector<ModelGroup>* children;
+
 
     ModelGroup()
     {

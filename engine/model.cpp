@@ -1,6 +1,6 @@
 #include "model.h"
 
-GLuint vertex[128];
+GLuint vertex[256];
 int modelCounter = 0;
 bool enableVBO = true;
 
@@ -91,19 +91,21 @@ ModelGroup* parseGroups(TiXmlNode* node)
     return current;
 }
 
-void initializeVBO (std::vector<float> vertices, int modelIndex)
+void initializeVBO (std::vector<float> vertices, std::vector<float> normals, int modelIndex)
 {
     //initialize, copy to gpu
-    glGenBuffers(1, &vertex[modelIndex]);
+    glGenBuffers(2, &vertex[modelIndex]);
     glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex+1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*normals.size(), normals.data(), GL_STATIC_DRAW);
 }
 
 Model* loadModel (std::string* filename)
 {
     std::ifstream file(*filename);
     std::string line;
-    std::vector<float> vertices;
+    std::vector<float> vertices, normals;
     if(!file.is_open())
     {
         std::cout << "Error opening file: " << *filename << std::endl;
@@ -112,6 +114,8 @@ Model* loadModel (std::string* filename)
 
     std::stringstream ss;
     getline(file, line);
+    int numPoints = stoi(line);
+    int i = 0;
 
     while(getline(file, line))
     {
@@ -120,13 +124,16 @@ Model* loadModel (std::string* filename)
         while(ss.good()){
             std::string substr;
             getline(ss, substr, ',');
-            vertices.emplace_back(stof(substr));
+            if (i < numPoints) {
+                vertices.emplace_back(stof(substr));
+            } else normals.emplace_back(stof(substr));
         }
+        i++;
     }
 
-    initializeVBO(vertices, modelCounter);
-    auto mod = new Model(vertices, modelCounter);
-    modelCounter++;
+    initializeVBO(vertices, normals, modelCounter);
+    auto mod = new Model(vertices, normals, modelCounter);
+    modelCounter+=2;
     return mod;
 }
 
@@ -165,10 +172,17 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
         }
         for (auto model : group.models)
         {
+            glMaterialfv(GL_FRONT, GL_AMBIENT, model.ambient);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, model.diffuse);
+            glMaterialfv(GL_FRONT, GL_SPECULAR, model.specular);
+            glMaterialf(GL_FRONT, GL_SHININESS, 64);
             if(enableVBO)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, vertex[model.modelIndex]);
                 glVertexPointer(3, GL_FLOAT, 0,0);
+                glBindBuffer(GL_ARRAY_BUFFER,vertex[model.modelIndex+1]);
+                glNormalPointer(GL_FLOAT, 0, 0);
+
                 glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
             } else {
                 glBegin(GL_TRIANGLES);

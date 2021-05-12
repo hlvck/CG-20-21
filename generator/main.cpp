@@ -7,6 +7,29 @@
 #include <sstream>
 #include <vector>
 
+void multMatrixVector(float *m, float *v, float *res) {
+
+    for (int j = 0; j < 4; ++j) {
+        res[j] = 0;
+        for (int k = 0; k < 4; ++k) {
+            res[j] += v[k] * m[j * 4 + k];
+        }
+    }
+}
+
+void normalize(float *a) {
+    float l = sqrt(a[0]*a[0] + a[1] * a[1] + a[2] * a[2]);
+    a[0] = a[0]/l;
+    a[1] = a[1]/l;
+    a[2] = a[2]/l;
+}
+
+void cross(float *a, float *b, float *res) {
+    res[0] = a[1]*b[2] - a[2]*b[1];
+    res[1] = a[2]*b[0] - a[0]*b[2];
+    res[2] = a[0]*b[1] - a[1]*b[0];
+}
+
 void plane(double dlength, char* filename)
 {
     double length = dlength/2;
@@ -19,6 +42,13 @@ void plane(double dlength, char* filename)
     file << -length << ",0.0," << -length << std::endl;
     file << -length << ",0.0," << length << std::endl;
     file << length << ",0.0," << length << std::endl;
+    //normal
+    file << "0.0, 1.0, 0.0" << std::endl;
+    file << "0.0, 1.0, 0.0" << std::endl;
+    file << "0.0, 1.0, 0.0" << std::endl;
+    file << "0.0, 1.0, 0.0" << std::endl;
+    file << "0.0, 1.0, 0.0" << std::endl;
+    file << "0.0, 1.0, 0.0" << std::endl;
     file.close();
 }
 
@@ -27,6 +57,7 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
     std::ofstream file;
     file.open(filename);
     file << 6*6*(divisions*divisions) << std::endl;
+    std::vector<float> normal;
     for(int i = 0; i<divisions; i++) {
         for (int j = 0; j < divisions; j++) {
             double x1 = (j*xlen)/divisions;
@@ -45,12 +76,26 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             file << x2 << "," << y1 << "," << zlen << std::endl;
             file << x2 << "," << y2 << "," << zlen << std::endl;
 
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
+
             file << x1 << "," << y1 << "," << "0.0" << std::endl;  // Face by x, 0
             file << x1 << "," << y2 << "," << "0.0" << std::endl;
             file << x2 << "," << y2 << "," << "0.0" << std::endl;
             file << x2 << "," << y2 << "," << "0.0" << std::endl;
             file << x2 << "," << y1 << "," << "0.0" << std::endl;
             file << x1 << "," << y1 << "," << "0.0" << std::endl;
+
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+            normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
 
             file << "0.0" << "," << y1 << "," << z1 << std::endl;  // Face by z, 0
             file << "0.0" << "," << y1 << "," << z2 << std::endl;
@@ -59,12 +104,26 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             file << "0.0" << "," << y1 << "," << z2 << std::endl;
             file << "0.0" << "," << y2 << "," << z2 << std::endl;
 
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
+
             file << xlen << "," << y1 << "," << z1 << std::endl;  // Face by z, x
             file << xlen << "," << y2 << "," << z1 << std::endl;
             file << xlen << "," << y2 << "," << z2 << std::endl;
             file << xlen << "," << y2 << "," << z2 << std::endl;
             file << xlen << "," << y1 << "," << z2 << std::endl;
             file << xlen << "," << y1 << "," << z1 << std::endl;
+
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+            normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
 
             file << x1tb << "," << ylen << "," << z1 << std::endl;  // Top of box
             file << x1tb << "," << ylen << "," << z2 << std::endl;
@@ -73,14 +132,33 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             file << x2tb << "," << ylen << "," << z1 << std::endl;
             file << x1tb << "," << ylen << "," << z1 << std::endl;
 
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
+
             file << x1tb << "," << "0.0" << "," << z1 << std::endl;  // Bottom of box
             file << x2tb << "," << "0.0" << "," << z1 << std::endl;
             file << x1tb << "," << "0.0" << "," << z2 << std::endl;
             file << x1tb << "," << "0.0" << "," << z2 << std::endl;
             file << x2tb << "," << "0.0" << "," << z1 << std::endl;
             file << x2tb << "," << "0.0" << "," << z2 << std::endl;
+
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+            normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
         }
     }
+
+    for(int i = 0; i < normal.size(); i+=3) {
+        file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
+    }
+
     file.close();
 }
 
@@ -89,6 +167,7 @@ void sphere (double radius, int slices, int stacks, char* filename)
     std::ofstream file;
     file.open(filename);
     file << slices * stacks * 6 << std::endl;
+    std::vector<float> normal;
     for(int i = 0; i < slices; i++)
     {
         for(int j = 0; j < stacks; j++)
@@ -97,16 +176,16 @@ void sphere (double radius, int slices, int stacks, char* filename)
             double a2 = ((i+1)*2*M_PI)/slices;
             double b1 = (M_PI/2)-(j*M_PI/stacks);
             double b2 = (M_PI/2)-((j+1)*M_PI/stacks);
-            double y1 = radius*sin(b1);
-            double y2 = radius*sin(b2);
-            double x1 = radius*cos(b1)*sin(a1);
-            double x2 = radius*cos(b2)*sin(a1);
-            double x3 = radius*cos(b2)*sin(a2);
-            double x4 = radius*cos(b1)*sin(a2);
-            double z1 = radius*cos(b1)*cos(a1);
-            double z2 = radius*cos(b2)*cos(a1);
-            double z3 = radius*cos(b2)*cos(a2);
-            double z4 = radius*cos(b1)*cos(a2);
+            double y1 = radius*sin(b1), ny1 = sin(b1);
+            double y2 = radius*sin(b2), ny2 = sin(b2);
+            double x1 = radius*cos(b1)*sin(a1), nx1 = cos(b1)*sin(a1);
+            double x2 = radius*cos(b2)*sin(a1), nx2 = cos(b2)*sin(a1);
+            double x3 = radius*cos(b2)*sin(a2), nx3 = cos(b2)*sin(a2);
+            double x4 = radius*cos(b1)*sin(a2), nx4 = cos(b1)*sin(a2);
+            double z1 = radius*cos(b1)*cos(a1), nz1 = cos(b1)*cos(a1);
+            double z2 = radius*cos(b2)*cos(a1), nz2 = cos(b2)*cos(a1);
+            double z3 = radius*cos(b2)*cos(a2), nz3 = cos(b2)*cos(a2);
+            double z4 = radius*cos(b1)*cos(a2), nz4 = cos(b1)*cos(a2);
 
             file << x1 << "," << y1 << "," << z1 << std::endl;
             file << x2 << "," << y2 << "," << z2 << std::endl;
@@ -114,7 +193,17 @@ void sphere (double radius, int slices, int stacks, char* filename)
             file << x4 << "," << y1 << "," << z4 << std::endl;
             file << x1 << "," << y1 << "," << z1 << std::endl;
             file << x3 << "," << y2 << "," << z3 << std::endl;
+
+            normal.emplace_back(nx1); normal.emplace_back(ny1); normal.emplace_back(nz1);
+            normal.emplace_back(nx2); normal.emplace_back(ny2); normal.emplace_back(nz2);
+            normal.emplace_back(nx3); normal.emplace_back(ny2); normal.emplace_back(nz3);
+            normal.emplace_back(nx4); normal.emplace_back(ny1); normal.emplace_back(nz4);
+            normal.emplace_back(nx1); normal.emplace_back(ny1); normal.emplace_back(nz1);
+            normal.emplace_back(nx3); normal.emplace_back(ny2); normal.emplace_back(nz3);
         }
+    }
+    for(int i = 0; i < normal.size(); i+=3) {
+        file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
     }
     file.close();
 }
@@ -123,6 +212,7 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
 {
     std::ofstream file;
     file.open(filename);
+    std::vector<float> normal; float norm[3];
     file << 6*slices*stacks + 3*slices << std::endl;
 
     for(int i = 0; i < stacks; i++)
@@ -136,14 +226,15 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
         {
             double a1 = (j*2*M_PI)/slices;
             double a2 = ((j+1)*2*M_PI)/slices;
-            double x1 = r1*sin(a1);
-            double x2 = r1*sin(a2);
-            double x3 = r2*sin(a1);
-            double x4 = r2*sin(a2);
-            double z1 = r1*cos(a1);
-            double z2 = r1*cos(a2);
-            double z3 = r2*cos(a1);
-            double z4 = r2*cos(a2);
+            double x1 = r1*sin(a1), nx1 = sin(a1);
+            double x2 = r1*sin(a2), nx2 = sin(a2);
+            double x3 = r2*sin(a1), nx3 = sin(a1);
+            double x4 = r2*sin(a2), nx4 = sin(a2);
+            double z1 = r1*cos(a1), nz1 = cos(a1);
+            double z2 = r1*cos(a2), nz2 = cos(a2);
+            double z3 = r2*cos(a1), nz3 = cos(a1);
+            double z4 = r2*cos(a2), nz4 = cos(a2);
+            double ny = radius/height;
 
             file << x1 << "," << y1 << "," << z1 << std::endl;
             file << x2 << "," << y1 << "," << z2 << std::endl;
@@ -152,34 +243,109 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
             file << x4 << "," << y2 << "," << z4 << std::endl;
             file << x3 << "," << y2 << "," << z3 << std::endl;
 
-            if(i==0)
+            norm[0] = nx1; norm[1] = ny; norm[2] = nz1; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+            norm[0] = nx2; norm[1] = ny; norm[2] = nz2; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+            norm[0] = nx3; norm[1] = ny; norm[2] = nz3; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+            norm[0] = nx2; norm[1] = ny; norm[2] = nz2; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+            norm[0] = nx4; norm[1] = ny; norm[2] = nz4; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+            norm[0] = nx3; norm[1] = ny; norm[2] = nz3; normalize(norm);
+            normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
+
+            if(i==0) //base
             {
                 file << x1 << "," << y1 << "," << z1 << std::endl;
                 file << "0.0" << "," << y1 << "," << "0.0" << std::endl;
                 file << x2 << "," << y1 << "," << z2 << std::endl;
+
+                normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+                normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+                normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
             }
         }
     }
+
+    for(int i = 0; i < normal.size(); i+=3) {
+        file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
+    }
+    file.close();
 }
 
-void multMatrixVector(float *m, float *v, float *res) {
+float m[4][4] = {	{-1.0f,  3.0f, -3.0f,  1.0f},
+                     { 3.0f, -6.0f,  3.0f, 0.0f},
+                     {-3.0f,  3.0f,  0.0f,  0.0f},
+                     { 1.0f,  0.0f,  0.0f,  0.0f}};
 
-    for (int j = 0; j < 4; ++j) {
-        res[j] = 0;
-        for (int k = 0; k < 4; ++k) {
-            res[j] += v[k] * m[j * 4 + k];
+void genNormals(float u, float v, float cpoints[4][4][3], float result[3])
+{
+    float um[4] = {u*u*u, u*u, u, 1};
+    float vm[4] = {v*v*v, v*v, v, 1};
+    float ud[4] = {3*u*u, 2*u, u, 1};
+    float vd[4] = {3*v*v, 2*v, v, 1};
+
+    float resU[4];
+    multMatrixVector((float*)m, um, resU);
+    float resV[4];
+    multMatrixVector((float*)m, vm, resV);
+    float resdu[4];
+    multMatrixVector((float*)m, ud, resdu);
+    float resdv[4];
+    multMatrixVector((float*)m, vd, resdv);
+
+    float pnttu[4][3] = { {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    float pnttv[4][3] = { {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    // vec tu
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            for(int k = 0; k < 3; k++)
+            {
+                pnttu[i][k] += cpoints[j][i][k] * resdu[j];
+            }
         }
     }
+    float resulttu[3] = {0,0,0};
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            resulttu[j] += pnttu[i][j] * resV[i];
+        }
+    }
+    //vec tv
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            for(int k = 0; k < 3; k++)
+            {
+                pnttv[i][k] += cpoints[j][i][k] * resU[j];
+            }
+        }
+    }
+    float resulttv[3] = {0,0,0};
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            resulttv[j] += pnttv[i][j] * resdv[i];
+        }
+    }
+    //normal: normalized cross product of tangent vectors
+    cross(resulttv, resulttu, result);
+    normalize(result);
 }
 
 void genPoints(float u, float v, float cpoints[4][4][3], float result[3])
 {
     float um[4] = {u*u*u, u*u, u, 1};
     float vm[4] = {v*v*v, v*v, v, 1};
-    float m[4][4] = {	{-1.0f,  3.0f, -3.0f,  1.0f},
-                         { 3.0f, -6.0f,  3.0f, 0.0f},
-                         {-3.0f,  3.0f,  0.0f,  0.0f},
-                         { 1.0f,  0.0f,  0.0f,  0.0f}};
+
     float resU[4];
     multMatrixVector((float*)m, um, resU);
     float resV[4];
@@ -265,14 +431,15 @@ void bezier(int tessellation, char* bezfile, char* outfile) {
     output << (numPatches * tessellation * (tessellation) *6) << std::endl;
 
     float change = 1.0f/tessellation;
+    std::vector<float> normals;
 
     for(int p = 0; p < numPatches; p++)
     {
-        float from[4][4][3];
+        float fromPatches[4][4][3];
         for (int z = 0; z < 4; z++) {
             for (int x = 0; x < 4; x++) {
                 for (int w = 0; w < 3; w++) {
-                    from[z][x][w] = bezierPoints[p][z*4+x][w];
+                    fromPatches[z][x][w] = bezierPoints[p][z * 4 + x][w];
                 }
             }
         }
@@ -287,22 +454,38 @@ void bezier(int tessellation, char* bezfile, char* outfile) {
                 float v2 = (k+1)*change;
 
                 float p1[3] = {0,0,0}, p2[3] = {0,0,0}, p3[3] = {0,0,0}, p4[3] = {0,0,0};
-                genPoints(u, v, from, p1);
-                genPoints(u, v2, from, p2);
-                genPoints(u2, v, from, p3);
-                genPoints(u2, v2, from, p4);
+                float n1[3] = {0,0,0}, n2[3] = {0,0,0}, n3[3] = {0,0,0}, n4[3] = {0,0,0};
+                genPoints(u, v, fromPatches, p1);
+                genPoints(u, v2, fromPatches, p2);
+                genPoints(u2, v, fromPatches, p3);
+                genPoints(u2, v2, fromPatches, p4);
+                genNormals(u, v, fromPatches, n1);
+                genNormals(u, v2, fromPatches, n2);
+                genNormals(u2, v, fromPatches, n3);
+                genNormals(u2, v2, fromPatches, n4);
 
-                output << p3[0] << "," << p3[1] << "," << p3[2] << std::endl;
                 output << p4[0] << "," << p4[1] << "," << p4[2] << std::endl;
-                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
-                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
-                output << p1[0] << "," << p1[1] << "," << p1[2] << std::endl;
                 output << p3[0] << "," << p3[1] << "," << p3[2] << std::endl;
+                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
+                output << p3[0] << "," << p3[1] << "," << p3[2] << std::endl;
+                output << p1[0] << "," << p1[1] << "," << p1[2] << std::endl;
+                output << p2[0] << "," << p2[1] << "," << p2[2] << std::endl;
+
+                normals.emplace_back(n4[0]); normals.emplace_back(n4[1]); normals.emplace_back(n4[2]);
+                normals.emplace_back(n3[0]); normals.emplace_back(n3[1]); normals.emplace_back(n3[2]);
+                normals.emplace_back(n2[0]); normals.emplace_back(n2[1]); normals.emplace_back(n2[2]);
+                normals.emplace_back(n3[0]); normals.emplace_back(n3[1]); normals.emplace_back(n3[2]);
+                normals.emplace_back(n1[0]); normals.emplace_back(n1[1]); normals.emplace_back(n1[2]);
+                normals.emplace_back(n2[0]); normals.emplace_back(n2[1]); normals.emplace_back(n2[2]);
 
             }
         }
     }
 
+    for(int i = 0; i < normals.size(); i+=3) {
+        output << normals[i] << "," << normals[i+1] << "," << normals[i+2] << std::endl;
+    }
+    output.close();
 }
 
 int main(int argc, char** argv)

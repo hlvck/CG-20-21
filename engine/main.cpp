@@ -147,14 +147,18 @@ int main(int argc, char **argv) {
 
 //  OpenGL settings
     glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_LIGHTING);
+
+    glEnable(GL_LIGHT0);
 
 //  Load models
     if(argc >= 2) {
         models = parseXml(argv[1]);
     } else {
-        models = parseXml("../demo/scene.xml");
+        models = parseXml("../demo/scene2.xml");
     }
 
 // enter GLUT's main cycle

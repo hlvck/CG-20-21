@@ -68,17 +68,59 @@ ModelGroup* parseGroups(TiXmlNode* node)
 
         if(!strcmp(node->Value(), "models"))
         {
-            std::vector<std::string> filenames;
             TiXmlElement* elem = node->FirstChildElement("model");
             do {
-                filenames.emplace_back(elem->Attribute("file"));
-            } while((elem = elem->NextSiblingElement()));
-
-            for(auto file : filenames)
-            {
-                Model* model = loadModel(&file);
+                TiXmlAttribute* attrib = elem->FirstAttribute();
+                Model* model;
+                do{
+                    if(!strcmp(attrib->Name(), "file"))
+                    {
+                        std::string filename(attrib->Value());
+                        model = loadModel(&filename);
+                    }
+                    else if(!strcmp(attrib->Name(), "specR") && model)
+                    {
+                        model->specular[0] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "specG") && model)
+                    {
+                        model->specular[1] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "specB") && model)
+                    {
+                        model->specular[2] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "ambiR") && model)
+                    {
+                        model->ambient[0] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "ambiG") && model)
+                    {
+                        model->ambient[1] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "ambiB") && model)
+                    {
+                        model->ambient[2] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "diffR") && model)
+                    {
+                        model->diffuse[0] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "diffG") && model)
+                    {
+                        model->diffuse[1] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "diffB") && model)
+                    {
+                        model->diffuse[2] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "shine") && model)
+                    {
+                        model->shininess = attrib->DoubleValue();
+                    }
+                } while((attrib = attrib->Next()));
                 if(model) current->models.emplace_back(*model);
-            }
+            } while((elem = elem->NextSiblingElement()));
         }
 
         if(!strcmp(node->Value(), "group"))
@@ -175,7 +217,7 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
             glMaterialfv(GL_FRONT, GL_AMBIENT, model.ambient);
             glMaterialfv(GL_FRONT, GL_DIFFUSE, model.diffuse);
             glMaterialfv(GL_FRONT, GL_SPECULAR, model.specular);
-            glMaterialf(GL_FRONT, GL_SHININESS, 64);
+            glMaterialf(GL_FRONT, GL_SHININESS, model.shininess);
             if(enableVBO)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, vertex[model.modelIndex]);

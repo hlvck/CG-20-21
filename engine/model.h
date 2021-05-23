@@ -5,6 +5,7 @@
 #include "tinyxml/tinyxml.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <IL/il.h>
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -40,13 +41,15 @@ struct Transform {
 struct Model {
     std::vector<float> vertices;
     std::vector<float> normals;
+    std::vector<float> texCoords;
     int modelIndex;
     float ambient[4], specular[4], diffuse[4], shininess;
 
-    explicit Model(std::vector<float> points, std::vector<float> npoints, int index)
+    explicit Model(std::vector<float> points, std::vector<float> npoints, std::vector<float> texture, int index)
     {
         this->vertices = std::move(points);
         this->normals = std::move(npoints);
+        this->texCoords = std::move(texture);
         this->modelIndex = index;
         this->ambient[0] = 0.2;
         this->ambient[1] = 0.2;

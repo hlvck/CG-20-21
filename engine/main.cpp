@@ -148,11 +148,13 @@ int main(int argc, char **argv) {
 //  OpenGL settings
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
 
     glEnable(GL_LIGHT0);
+    glEnable(GL_TEXTURE_2D);
 
 //  Load models
     if(argc >= 2) {

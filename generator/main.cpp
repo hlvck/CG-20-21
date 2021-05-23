@@ -49,6 +49,13 @@ void plane(double dlength, char* filename)
     file << "0.0, 1.0, 0.0" << std::endl;
     file << "0.0, 1.0, 0.0" << std::endl;
     file << "0.0, 1.0, 0.0" << std::endl;
+    //texture
+    file << "1.0, 0.0" << std::endl;
+    file << "1.0, 1.0" << std::endl;
+    file << "0.0, 1.0" << std::endl;
+    file << "0.0, 1.0" << std::endl;
+    file << "0.0, 0.0" << std::endl;
+    file << "1.0, 0.0" << std::endl;
     file.close();
 }
 
@@ -57,7 +64,7 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
     std::ofstream file;
     file.open(filename);
     file << 6*6*(divisions*divisions) << std::endl;
-    std::vector<float> normal;
+    std::vector<float> normal, texture;
     for(int i = 0; i<divisions; i++) {
         for (int j = 0; j < divisions; j++) {
             double x1 = (j*xlen)/divisions;
@@ -68,6 +75,10 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             double y2 = ((i+1)*ylen)/divisions;
             double x1tb = (i*xlen)/divisions;
             double x2tb = ((i+1)*xlen)/divisions;
+            double tx1 = j/(double)divisions;
+            double tx2 = (j+1)/(double)divisions;
+            double ty1 = i/(double)divisions;
+            double ty2 = (i+1)/(double)divisions;
 
             file << x1 << "," << y1 << "," << zlen << std::endl;  // Face by x, z
             file << x2 << "," << y1 << "," << zlen << std::endl;
@@ -83,6 +94,13 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
             normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(1);
 
+            texture.emplace_back(tx1/3); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx2/3); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx1/3); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(tx1/3); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(tx2/3); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx2/3); texture.emplace_back(ty2/2 + 0.5f);
+
             file << x1 << "," << y1 << "," << "0.0" << std::endl;  // Face by x, 0
             file << x1 << "," << y2 << "," << "0.0" << std::endl;
             file << x2 << "," << y2 << "," << "0.0" << std::endl;
@@ -96,6 +114,13 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
             normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
             normal.emplace_back(0); normal.emplace_back(0); normal.emplace_back(-1);
+
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.33f); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.33f); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.33f); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.33f); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.33f); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.33f); texture.emplace_back(ty1/2 + 0.5f);
 
             file << "0.0" << "," << y1 << "," << z1 << std::endl;  // Face by z, 0
             file << "0.0" << "," << y1 << "," << z2 << std::endl;
@@ -111,6 +136,13 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
             normal.emplace_back(-1); normal.emplace_back(0); normal.emplace_back(0);
 
+            texture.emplace_back(tx1/3 + 0.66f); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx2/3 + 0.66f); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx1/3 + 0.66f); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(tx1/3 + 0.66f); texture.emplace_back(ty2/2 + 0.5f);
+            texture.emplace_back(tx2/3 + 0.66f); texture.emplace_back(ty1/2 + 0.5f);
+            texture.emplace_back(tx2/3 + 0.66f); texture.emplace_back(ty2/2 + 0.5f);
+
             file << xlen << "," << y1 << "," << z1 << std::endl;  // Face by z, x
             file << xlen << "," << y2 << "," << z1 << std::endl;
             file << xlen << "," << y2 << "," << z2 << std::endl;
@@ -124,6 +156,13 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
             normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
             normal.emplace_back(1); normal.emplace_back(0); normal.emplace_back(0);
+
+            texture.emplace_back(((float)divisions/3) - tx1/3); texture.emplace_back(ty1/2);
+            texture.emplace_back(((float)divisions/3) - tx1/3); texture.emplace_back(ty2/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3); texture.emplace_back(ty2/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3); texture.emplace_back(ty2/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3); texture.emplace_back(ty1/2);
+            texture.emplace_back(((float)divisions/3) - tx1/3); texture.emplace_back(ty1/2);
 
             file << x1tb << "," << ylen << "," << z1 << std::endl;  // Top of box
             file << x1tb << "," << ylen << "," << z2 << std::endl;
@@ -139,6 +178,13 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
             normal.emplace_back(0); normal.emplace_back(1); normal.emplace_back(0);
 
+            texture.emplace_back(tx1/3 + 0.33f); texture.emplace_back(ty1/2);
+            texture.emplace_back(tx2/3 + 0.33f); texture.emplace_back(ty1/2);
+            texture.emplace_back(tx2/3 + 0.33f); texture.emplace_back(ty2/2);
+            texture.emplace_back(tx2/3 + 0.33f); texture.emplace_back(ty2/2);
+            texture.emplace_back(tx1/3 + 0.33f); texture.emplace_back(ty2/2);
+            texture.emplace_back(tx1/3 + 0.33f); texture.emplace_back(ty1/2);
+
             file << x1tb << "," << "0.0" << "," << z1 << std::endl;  // Bottom of box
             file << x2tb << "," << "0.0" << "," << z1 << std::endl;
             file << x1tb << "," << "0.0" << "," << z2 << std::endl;
@@ -152,11 +198,22 @@ void box(double xlen, double ylen, double zlen, int divisions, char* filename)
             normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
             normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
             normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.66f); texture.emplace_back(ty1/2);
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.66f); texture.emplace_back(ty2/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.66f); texture.emplace_back(ty1/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.66f); texture.emplace_back(ty1/2);
+            texture.emplace_back(((float)divisions/3) - tx1/3 + 0.66f); texture.emplace_back(ty2/2);
+            texture.emplace_back(((float)divisions/3) - tx2/3 + 0.66f); texture.emplace_back(ty2/2);
         }
     }
 
     for(int i = 0; i < normal.size(); i+=3) {
         file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
+    }
+
+    for(int i = 0; i < texture.size(); i+=3) {
+        file << texture[i] << "," << texture[i+1] << "," << texture[i+2] << std::endl;
     }
 
     file.close();
@@ -167,9 +224,11 @@ void sphere (double radius, int slices, int stacks, char* filename)
     std::ofstream file;
     file.open(filename);
     file << slices * stacks * 6 << std::endl;
-    std::vector<float> normal;
+    std::vector<float> normal, texture;
     for(int i = 0; i < slices; i++)
     {
+        double t1x = i/(double)slices;
+        double t2x = (i+1)/(double)slices;
         for(int j = 0; j < stacks; j++)
         {
             double a1 = (i*2*M_PI)/slices;
@@ -186,6 +245,8 @@ void sphere (double radius, int slices, int stacks, char* filename)
             double z2 = radius*cos(b2)*cos(a1), nz2 = cos(b2)*cos(a1);
             double z3 = radius*cos(b2)*cos(a2), nz3 = cos(b2)*cos(a2);
             double z4 = radius*cos(b1)*cos(a2), nz4 = cos(b1)*cos(a2);
+            double t1y = 1 - (j/(double)stacks);
+            double t2y = 1 - ((j+1)/(double)stacks);
 
             file << x1 << "," << y1 << "," << z1 << std::endl;
             file << x2 << "," << y2 << "," << z2 << std::endl;
@@ -200,10 +261,20 @@ void sphere (double radius, int slices, int stacks, char* filename)
             normal.emplace_back(nx4); normal.emplace_back(ny1); normal.emplace_back(nz4);
             normal.emplace_back(nx1); normal.emplace_back(ny1); normal.emplace_back(nz1);
             normal.emplace_back(nx3); normal.emplace_back(ny2); normal.emplace_back(nz3);
+
+            texture.emplace_back(t1x); texture.emplace_back(t1y);
+            texture.emplace_back(t1x); texture.emplace_back(t2y);
+            texture.emplace_back(t2x); texture.emplace_back(t2y);
+            texture.emplace_back(t2x); texture.emplace_back(t1y);
+            texture.emplace_back(t1x); texture.emplace_back(t1y);
+            texture.emplace_back(t2x); texture.emplace_back(t2y);
         }
     }
     for(int i = 0; i < normal.size(); i+=3) {
         file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
+    }
+    for(int i = 0; i < texture.size(); i+=2) {
+        file << texture[i] << "," << texture[i + 1] << std::endl;
     }
     file.close();
 }

@@ -1,6 +1,6 @@
 #include "model.h"
 
-GLuint vertex[256];
+GLuint vertex[300], textureID[100];
 int modelCounter = 0;
 bool enableVBO = true;
 
@@ -20,6 +20,40 @@ std::vector<ModelGroup>* parseXml(char* filename)
         modelGroup->emplace_back(*parseGroups(node->FirstChild()));
     } while((node = node->NextSibling()));
     return modelGroup;
+}
+
+void loadTexture(std::string* textureFile, int modelNum)
+{
+    unsigned int t,tw,th;
+    unsigned char *texData;
+    unsigned int texID;
+
+    ilInit();
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+    ilGenImages(1,&t);
+    ilBindImage(t);
+    ilLoadImage((ILstring)textureFile->c_str());
+    tw = ilGetInteger(IL_IMAGE_WIDTH);
+    th = ilGetInteger(IL_IMAGE_HEIGHT);
+    ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+    texData = ilGetData();
+
+    glGenTextures(1,&texID);
+
+    glBindTexture(GL_TEXTURE_2D,texID);
+    glTexParameteri(GL_TEXTURE_2D,	GL_TEXTURE_WRAP_S,		GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,	GL_TEXTURE_WRAP_T,		GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D,	GL_TEXTURE_MAG_FILTER,   	GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,	GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    textureID[modelNum] = texID;
 }
 
 ModelGroup* parseGroups(TiXmlNode* node)
@@ -118,6 +152,11 @@ ModelGroup* parseGroups(TiXmlNode* node)
                     {
                         model->shininess = attrib->DoubleValue();
                     }
+                    else if(!strcmp(attrib->Name(), "texture"))
+                    {
+                        std::string textureFile(attrib->Value());
+                        loadTexture(&textureFile, (model->modelIndex/3));
+                    }
                 } while((attrib = attrib->Next()));
                 if(model) current->models.emplace_back(*model);
             } while((elem = elem->NextSiblingElement()));
@@ -133,21 +172,24 @@ ModelGroup* parseGroups(TiXmlNode* node)
     return current;
 }
 
-void initializeVBO (std::vector<float> vertices, std::vector<float> normals, int modelIndex)
+void initializeVBO (std::vector<float> vertices, std::vector<float> normals, std::vector<float> textCoords, int modelIndex)
 {
     //initialize, copy to gpu
-    glGenBuffers(2, &vertex[modelIndex]);
+    glGenBuffers(3, &vertex[modelIndex]);
     glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex+1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*normals.size(), normals.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex[modelIndex+2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*textCoords.size(), textCoords.data(), GL_STATIC_DRAW);
+
 }
 
 Model* loadModel (std::string* filename)
 {
     std::ifstream file(*filename);
     std::string line;
-    std::vector<float> vertices, normals;
+    std::vector<float> vertices, normals, textCoords;
     if(!file.is_open())
     {
         std::cout << "Error opening file: " << *filename << std::endl;
@@ -168,14 +210,16 @@ Model* loadModel (std::string* filename)
             getline(ss, substr, ',');
             if (i < numPoints) {
                 vertices.emplace_back(stof(substr));
-            } else normals.emplace_back(stof(substr));
+            } else if (i < numPoints*2) {
+                normals.emplace_back(stof(substr));
+            } else textCoords.emplace_back(stof(substr));
         }
         i++;
     }
 
-    initializeVBO(vertices, normals, modelCounter);
-    auto mod = new Model(vertices, normals, modelCounter);
-    modelCounter+=2;
+    initializeVBO(vertices, normals, textCoords, modelCounter);
+    auto mod = new Model(vertices, normals, textCoords, modelCounter);
+    modelCounter+=3;
     return mod;
 }
 
@@ -218,22 +262,28 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
             glMaterialfv(GL_FRONT, GL_DIFFUSE, model.diffuse);
             glMaterialfv(GL_FRONT, GL_SPECULAR, model.specular);
             glMaterialf(GL_FRONT, GL_SHININESS, model.shininess);
+            glBindTexture(GL_TEXTURE_2D, textureID[model.modelIndex/3]);
             if(enableVBO)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, vertex[model.modelIndex]);
                 glVertexPointer(3, GL_FLOAT, 0,0);
                 glBindBuffer(GL_ARRAY_BUFFER,vertex[model.modelIndex+1]);
                 glNormalPointer(GL_FLOAT, 0, 0);
+                glBindBuffer(GL_ARRAY_BUFFER,vertex[model.modelIndex+2]);
+                glTexCoordPointer(2,GL_FLOAT,0,0);
 
                 glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
             } else {
-                glBegin(GL_TRIANGLES);
+                glBegin(GL_TRIANGLES); int j = 0;
                 for(int i = 0; i < model.vertices.size(); i+=3)
                 {
+                    glTexCoord2f(model.texCoords[j], model.texCoords[j+1]); j+=2;
+                    glNormal3f(model.normals[i], model.normals[i+1], model.normals[i+2]);
                     glVertex3f(model.vertices[i], model.vertices[i+1], model.vertices[i+2]);
                 }
                 glEnd();
             }
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         if(group.children) (drawModels(group.children));
         glPopMatrix();

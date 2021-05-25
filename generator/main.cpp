@@ -283,7 +283,7 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
 {
     std::ofstream file;
     file.open(filename);
-    std::vector<float> normal; float norm[3];
+    std::vector<float> normal, texture; float norm[3];
     file << 6*slices*stacks + 3*slices << std::endl;
 
     for(int i = 0; i < stacks; i++)
@@ -292,6 +292,8 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
         double r2 = radius - (((i+1)*radius)/stacks);
         double y1 = (i*height)/stacks;
         double y2 = ((i+1)*height)/stacks;
+        double t1y = (i/(double)stacks);
+        double t2y = ((i+1)/(double)stacks);
 
         for(int j = 0; j < slices; j++)
         {
@@ -306,6 +308,8 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
             double z3 = r2*cos(a1), nz3 = cos(a1);
             double z4 = r2*cos(a2), nz4 = cos(a2);
             double ny = radius/height;
+            double t1x = j/(double)slices;
+            double t2x = (j+1)/(double)slices;
 
             file << x1 << "," << y1 << "," << z1 << std::endl;
             file << x2 << "," << y1 << "," << z2 << std::endl;
@@ -327,6 +331,13 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
             norm[0] = nx3; norm[1] = ny; norm[2] = nz3; normalize(norm);
             normal.emplace_back(norm[0]); normal.emplace_back(norm[1]); normal.emplace_back(norm[2]);
 
+            texture.emplace_back(t1x); texture.emplace_back(t1y/2 + 0.5f);
+            texture.emplace_back(t2x); texture.emplace_back(t1y/2 + 0.5f);
+            texture.emplace_back(t1x); texture.emplace_back(t2y/2 + 0.5f);
+            texture.emplace_back(t2x); texture.emplace_back(t1y/2 + 0.5f);
+            texture.emplace_back(t2x); texture.emplace_back(t2y/2 + 0.5f);
+            texture.emplace_back(t1x); texture.emplace_back(t2y/2 + 0.5f);
+
             if(i==0) //base
             {
                 file << x1 << "," << y1 << "," << z1 << std::endl;
@@ -336,12 +347,19 @@ void cone(double radius, double height, int slices, int stacks, char* filename)
                 normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
                 normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
                 normal.emplace_back(0); normal.emplace_back(-1); normal.emplace_back(0);
+
+                texture.emplace_back(0.5f - cos(a1)/6); texture.emplace_back(0.25f + sin(a1)/4);
+                texture.emplace_back(0.5f);             texture.emplace_back(0.25f);
+                texture.emplace_back(0.5f - cos(a2)/6); texture.emplace_back(0.25f + sin(a2)/4);
             }
         }
     }
 
     for(int i = 0; i < normal.size(); i+=3) {
         file << normal[i] << "," << normal[i+1] << "," << normal[i+2] << std::endl;
+    }
+    for(int i = 0; i < texture.size(); i+=2) {
+        file << texture[i] << "," << texture[i + 1] << std::endl;
     }
     file.close();
 }
@@ -355,8 +373,8 @@ void genNormals(float u, float v, float cpoints[4][4][3], float result[3])
 {
     float um[4] = {u*u*u, u*u, u, 1};
     float vm[4] = {v*v*v, v*v, v, 1};
-    float ud[4] = {3*u*u, 2*u, u, 1};
-    float vd[4] = {3*v*v, 2*v, v, 1};
+    float ud[4] = {3*u*u, 2*u, 1, 0};
+    float vd[4] = {3*v*v, 2*v, 1, 0};
 
     float resU[4];
     multMatrixVector((float*)m, um, resU);
@@ -502,7 +520,7 @@ void bezier(int tessellation, char* bezfile, char* outfile) {
     output << (numPatches * tessellation * (tessellation) *6) << std::endl;
 
     float change = 1.0f/tessellation;
-    std::vector<float> normals;
+    std::vector<float> normals, texture;
 
     for(int p = 0; p < numPatches; p++)
     {
@@ -518,11 +536,15 @@ void bezier(int tessellation, char* bezfile, char* outfile) {
         {
             float u = j*change;
             float u2 = (j+1)*change;
+            float t1x = j/(float)tessellation;
+            float t2x = (j+1)/(float)tessellation;
 
             for(int k = 0; k < tessellation; k++)
             {
                 float v = k*change;
                 float v2 = (k+1)*change;
+                float t1y = k/(float)tessellation;
+                float t2y = (k+1)/(float)tessellation;
 
                 float p1[3] = {0,0,0}, p2[3] = {0,0,0}, p3[3] = {0,0,0}, p4[3] = {0,0,0};
                 float n1[3] = {0,0,0}, n2[3] = {0,0,0}, n3[3] = {0,0,0}, n4[3] = {0,0,0};
@@ -549,12 +571,22 @@ void bezier(int tessellation, char* bezfile, char* outfile) {
                 normals.emplace_back(n1[0]); normals.emplace_back(n1[1]); normals.emplace_back(n1[2]);
                 normals.emplace_back(n2[0]); normals.emplace_back(n2[1]); normals.emplace_back(n2[2]);
 
+                texture.emplace_back(t2x); texture.emplace_back(t2y);
+                texture.emplace_back(t2x); texture.emplace_back(t1y);
+                texture.emplace_back(t1x); texture.emplace_back(t2y);
+                texture.emplace_back(t2x); texture.emplace_back(t1y);
+                texture.emplace_back(t1x); texture.emplace_back(t1y);
+                texture.emplace_back(t1x); texture.emplace_back(t2y);
+
             }
         }
     }
 
     for(int i = 0; i < normals.size(); i+=3) {
         output << normals[i] << "," << normals[i+1] << "," << normals[i+2] << std::endl;
+    }
+    for(int i = 0; i < texture.size(); i+=2) {
+        output << texture[i] << "," << texture[i + 1] << std::endl;
     }
     output.close();
 }

@@ -14,6 +14,7 @@
 #include <iostream>
 #include "extra.h"
 #include "catmullrom.h"
+#include "lights.h"
 
 enum TRANSF_TYPE{
     translate,
@@ -72,15 +73,14 @@ struct ModelGroup {
     std::vector<Model> models;
     std::vector<ModelGroup>* children;
 
-
     ModelGroup()
     {
         this->children = nullptr;
     }
 };
-
-std::vector<ModelGroup>* parseXml(char*);
+std::pair<std::vector<Light>*, std::vector<ModelGroup>*>* parseXml(char*);
 ModelGroup* parseGroups(TiXmlNode*);
 Model* loadModel(std::string*);
-void drawModels(std::vector<ModelGroup>*);
+void draw(std::pair<std::vector<Light>*, std::vector<ModelGroup>*>* pair);
+//void drawModels(std::vector<ModelGroup>*);
 void VBOToggle();

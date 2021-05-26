@@ -8,11 +8,11 @@
 #include <cmath>
 #include "model.h"
 #include "extra.h"
-#include "tinyxml/tinyxml.h"
 
 float alpha = 0, beta = M_PI/4;
 float dist = 20;
-std::vector<ModelGroup>* models;
+
+std::pair<std::vector<Light>*, std::vector<ModelGroup>*>* scene;
 
 void changeSize(int w, int h) {
 
@@ -61,7 +61,7 @@ void renderScene(void) {
 
     // put drawing instructions here
     drawAxis();
-    drawModels(models);
+    draw(scene);
 
     displayFps();
 	// End of frame
@@ -152,15 +152,14 @@ int main(int argc, char **argv) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
-
-    glEnable(GL_LIGHT0);
     glEnable(GL_TEXTURE_2D);
 
 //  Load models
     if(argc >= 2) {
-        models = parseXml(argv[1]);
+        //models = parseXml(argv[1]);
+        scene = parseXml(argv[1]);
     } else {
-        models = parseXml("../demo/scene2.xml");
+        scene = parseXml("../demo/scene2.xml");
     }
 
 // enter GLUT's main cycle

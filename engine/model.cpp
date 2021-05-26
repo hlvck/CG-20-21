@@ -4,7 +4,7 @@ GLuint vertex[300], textureID[100];
 int modelCounter = 0;
 bool enableVBO = true;
 
-std::vector<ModelGroup>* parseXml(char* filename)
+std::pair<std::vector<Light>*, std::vector<ModelGroup>*>* parseXml(char* filename)
 {
     TiXmlDocument doc(filename);
     bool success = doc.LoadFile(filename);
@@ -14,12 +14,16 @@ std::vector<ModelGroup>* parseXml(char* filename)
         getchar();
         exit(1);
     }
-    TiXmlNode* node = doc.FirstChildElement("scene")->FirstChild();
+    TiXmlNode* lightNode = doc.FirstChildElement("scene")->FirstChild("lights");
+    TiXmlNode* node = doc.FirstChildElement("scene")->FirstChild("group");
+    auto lights = parseLights(lightNode);
+
     auto modelGroup = new std::vector<ModelGroup>;
     do {
         modelGroup->emplace_back(*parseGroups(node->FirstChild()));
     } while((node = node->NextSibling()));
-    return modelGroup;
+    auto pair = new std::pair<std::vector<Light>*, std::vector<ModelGroup>*>(lights, modelGroup);
+    return pair;
 }
 
 void loadTexture(std::string* textureFile, int modelNum)
@@ -288,6 +292,12 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
         if(group.children) (drawModels(group.children));
         glPopMatrix();
     }
+}
+
+void draw(std::pair<std::vector<Light>*, std::vector<ModelGroup>*>* pair)
+{
+    drawLights(pair->first);
+    drawModels(pair->second);
 }
 
 void VBOToggle()

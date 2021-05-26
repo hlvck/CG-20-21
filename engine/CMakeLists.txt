@@ -39,7 +39,7 @@ include_directories(${OpenGL_INCLUDE_DIRS})
 link_directories(${OpenGL_LIBRARY_DIRS})
 add_definitions(${OpenGL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME} main.cpp model.cpp model.h tinyxml/tinyxml.h tinyxml/tinyxml.cpp tinyxml/tinystr.cpp tinyxml/tinyxmlparser.cpp tinyxml/tinyxmlerror.cpp extra.cpp extra.h catmullrom.h catmullrom.cpp )
+add_executable(${PROJECT_NAME} main.cpp model.cpp model.h tinyxml/tinyxml.h tinyxml/tinyxml.cpp tinyxml/tinystr.cpp tinyxml/tinyxmlparser.cpp tinyxml/tinyxmlerror.cpp extra.cpp extra.h catmullrom.h catmullrom.cpp lights.cpp lights.h)
 
 if (WIN32)
 	target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} glut32 glew32 DevIL)

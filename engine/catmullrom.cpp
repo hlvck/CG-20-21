@@ -127,13 +127,16 @@ void renderCatmullRomCurve(float* points, int size) {
     float deriv[3] = { 0.0f, 0.0f, 0.0f };
     float gt = 0;
 
+    glEnable(GL_COLOR_MATERIAL);
     glBegin(GL_LINE_LOOP);
+    glColor3f(0.5, 0.5, 0.5);
     while(gt<1) {
         getGlobalCatmullRomPoint(gt, pos, deriv, points, size);
         glVertex3f(pos[0], pos[1], pos[2]);
         gt += 0.01;
     }
     glEnd();
+    glDisable(GL_COLOR_MATERIAL);
 }
 
 void toggleCurve()

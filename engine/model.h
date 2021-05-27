@@ -44,7 +44,7 @@ struct Model {
     std::vector<float> normals;
     std::vector<float> texCoords;
     int modelIndex;
-    float ambient[4], specular[4], diffuse[4], shininess;
+    float ambient[4], specular[4], diffuse[4], emission[4], shininess;
 
     explicit Model(std::vector<float> points, std::vector<float> npoints, std::vector<float> texture, int index)
     {
@@ -64,6 +64,10 @@ struct Model {
         this->specular[1] = 0;
         this->specular[2] = 0;
         this->specular[3] = 1.0;
+        this->emission[0] = 0;
+        this->emission[1] = 0;
+        this->emission[2] = 0;
+        this->emission[3] = 1.0;
         this->shininess = 64.0;
     }
 };

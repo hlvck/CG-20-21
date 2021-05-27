@@ -152,6 +152,18 @@ ModelGroup* parseGroups(TiXmlNode* node)
                     {
                         model->diffuse[2] = attrib->DoubleValue();
                     }
+                    else if(!strcmp(attrib->Name(), "emitR") && model)
+                    {
+                        model->emission[0] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "emitG") && model)
+                    {
+                        model->emission[1] = attrib->DoubleValue();
+                    }
+                    else if(!strcmp(attrib->Name(), "emitB") && model)
+                    {
+                        model->emission[2] = attrib->DoubleValue();
+                    }
                     else if(!strcmp(attrib->Name(), "shine") && model)
                     {
                         model->shininess = attrib->DoubleValue();
@@ -229,6 +241,7 @@ Model* loadModel (std::string* filename)
 
 void drawModels(std::vector<ModelGroup>* modelgroups)
 {
+    if(modelgroups == nullptr) return;
     for (auto &group : *modelgroups)
     {
         glPushMatrix();
@@ -265,6 +278,7 @@ void drawModels(std::vector<ModelGroup>* modelgroups)
             glMaterialfv(GL_FRONT, GL_AMBIENT, model.ambient);
             glMaterialfv(GL_FRONT, GL_DIFFUSE, model.diffuse);
             glMaterialfv(GL_FRONT, GL_SPECULAR, model.specular);
+            glMaterialfv(GL_FRONT, GL_EMISSION, model.emission);
             glMaterialf(GL_FRONT, GL_SHININESS, model.shininess);
             glBindTexture(GL_TEXTURE_2D, textureID[model.modelIndex/3]);
             if(enableVBO)

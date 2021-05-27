@@ -28,6 +28,7 @@ void drawAxis()
 {
     if(visibleAxis)
     {
+        glEnable(GL_COLOR_MATERIAL);
         glBegin(GL_LINES);
         glColor3f(1.0, 0.1, 0.1);
         glVertex3f(-300.0f, 0.0f, 0.0f);
@@ -40,5 +41,6 @@ void drawAxis()
         glVertex3f(0.0f, 0.0f, 300.0f);
         glColor3f(1,1,1);
         glEnd();
+        glDisable(GL_COLOR_MATERIAL);
     }
 }

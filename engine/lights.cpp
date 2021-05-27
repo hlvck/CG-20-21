@@ -9,19 +9,19 @@ std::vector<Light>* parseLights (TiXmlNode* node)
     auto lights = new std::vector<Light>;
     if(!node) return nullptr;
     Light* current;
-    TiXmlElement* elem = node->FirstChildElement("light");
+    TiXmlElement* elem = node->FirstChildElement("light"); if(!elem) return nullptr;
     do {
         TiXmlAttribute* attrib = elem->FirstAttribute();
         if(!strcmp(attrib->Value(), "POINT"))
         {
             current = new Light(point);
-        } else if (!strcmp(attrib->Value(), "SPOTLIGHT"))
+        } else if (!strcmp(attrib->Value(), "SPOTLIGHT") || !strcmp(attrib->Value(), "SPOT"))
         {
             current = new Light(spotlight);
         } else if (!strcmp(attrib->Value(), "DIRECTIONAL"))
         {
             current = new Light(directional);
-        }
+        } else return nullptr;
 
         while((attrib = attrib->Next())) {
             if(!strcmp(attrib->Name(), "posX") && current)
@@ -39,14 +39,17 @@ std::vector<Light>* parseLights (TiXmlNode* node)
             else if(!strcmp(attrib->Name(), "dirX") && current)
             {
                 current->dir[0] = attrib->DoubleValue();
+                if(current->type == directional) current->pos[0] = current->dir[0];
             }
             else if(!strcmp(attrib->Name(), "dirY") && current)
             {
                 current->dir[1] = attrib->DoubleValue();
+                if(current->type == directional) current->pos[1] = current->dir[1];
             }
             else if(!strcmp(attrib->Name(), "dirZ") && current)
             {
                 current->dir[2] = attrib->DoubleValue();
+                if(current->type == directional) current->pos[2] = current->dir[2];
             }
             else if(!strcmp(attrib->Name(), "specR") && current)
             {
@@ -92,6 +95,7 @@ std::vector<Light>* parseLights (TiXmlNode* node)
 
 void drawLights(std::vector<Light>* plights)
 {
+    if (plights == nullptr) return;
     std::vector<Light> lights = *plights;
     for (int i = 0; i < lights.size(); i++)
     {
@@ -103,7 +107,7 @@ void drawLights(std::vector<Light>* plights)
         glLightfv(lightId, GL_POSITION, lights[i].pos);
         if(lights[i].type == spotlight) {
             glLightf(lightId, GL_SPOT_CUTOFF, 90);
-            glLightf(lightId, GL_SPOT_EXPONENT, 30);
+            glLightf(lightId, GL_SPOT_EXPONENT, 25);
             glLightfv(lightId, GL_SPOT_DIRECTION, lights[i].dir);
             glLightf(lightId, GL_LINEAR_ATTENUATION, 0.2);
         }

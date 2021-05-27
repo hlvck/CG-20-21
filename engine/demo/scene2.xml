@@ -1,0 +1,36 @@
+<scene>
+    <lights>
+        <light type="POINT" ambiR="0.2" ambiG="0.2" ambiB="0.2" posY="3"/>
+        <light type="SPOT" diffR="1" diffG="0" diffB="0" specR="1" specG="0" specB="0" posX="-5" posY="5" posZ="1.1" dirZ="-0.3" dirY="-0.7"/>
+        <light type="SPOT" diffR="1" diffG="1" diffB="0.3" specR="1" specG="1" specB="0.3" posX="1.8" posY="8" posZ="2.5" dirY="-1"/>
+        <light type="SPOT" diffR="0.3" diffG="0.8" diffB="0.3" specR="0.9" specG="0.8" specB="0.3" posX="8" posY="10" dirY="-1"/>
+        <light type="DIRECTIONAL" diffR="1" diffG="1" diffB="1" dirX="1"/>
+    </lights>
+    <group>
+        <scale X="8" Y="8" Z="8" />
+        <models>
+            <model file="../demo/plane.3d" diffR="0.5" diffG="0.3" diffB="0.7" texture="../demo/textures/concrete.jpg"/>
+        </models>
+    </group>
+    <group>
+        <translate X="-5" Y="2" />
+        <rotate angle="90" axisX="-1" />
+        <scale X="0.5" Y="0.5" Z="0.5" />
+        <models>
+            <model file="../demo/cone.3d" texture="../demo/textures/textureCone.jpg" />
+        </models>
+    </group>
+    <group>
+        <models>
+            <model file="../demo/box.3d" texture="../demo/textures/boxTest.jpg" />
+        </models>
+    </group>
+    <group>
+        <translate X="8" />
+        <rotate angle="-90" axisX="1" />
+        <rotate time="3" axisZ="1" />
+        <models>
+            <model file="../demo/teapot.3d" texture="../demo/textures/brushedmetal.jpg"/>
+        </models>
+    </group>
+</scene>
